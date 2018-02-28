@@ -1,0 +1,1048 @@
+\documentclass[a4paper,twocolumn,5p]{elsarticle}
+
+\usepackage{hyperref}
+%\usepackage{lineno}
+%\modulolinenumbers[5]
+
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage[draft]{fixme}
+
+\journal{Environment International}
+
+%% `Elsevier LaTeX' style
+\bibliographystyle{elsarticle-num}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+% Macro para escribir NO$_2$
+\newcommand{\no}{NO\textsubscript{2}\xspace}
+
+\begin{frontmatter}
+
+\title{Probabilistic forecasting for extreme \no pollution episodes}
+
+\author{Jos\'e L. Aznarte\fnref{myfootnote}}
+\address{Artificial Intelligence Department\\Universidad Nacional de
+  Educaci\'on a Distancia --- UNED\\c/ Juan del Rosal, 16, Madrid, Spain}
+\ead{jlaznarte@dia.uned.es}
+\fntext[myfootnote]{This work has been partially funded by Ministerio
+  de Econom\'ia y Competitividad, Gobierno de Espa\~na, through a
+  \emph{Ram\'on y Cajal} grant % awarded to Dr Aznarte
+  (reference: RYC-2012-11984).}
+
+
+\begin{abstract}
+  In this study, we investigate the feasibility and convenience of
+  quantile regression to predict extreme concentrations of
+  \no. Contrarily to the usual point-forecasting, where a single value
+  (mean or median) is forecast for each horizon, probabilistic
+  forecasting through quantile regression allows for the prediction of
+  the full probability distribution, which in turn allows to build
+  models specifically fit for the tails of this distribution.
+
+  Using data from the atmospheric pollution monitoring system of
+  Madrid, including \no concentrations as well as meteorological
+  measures, we demonstrate that such models are able to predict
+  extreme \no concentrations, outperforming point-forecasting
+  alternatives, and that the predictions are accurate, reliable and
+  sharp. Besides, we study the relative importance of the independent
+  variables involved, and show how the important variables for the
+  median quantile are different than those important for the upper
+  quantiles. Furthermore, we show a method to compute the probability
+  of exceedance of thresholds, which is proven to be a simple and
+  comprehensible manner to present probabilistic forecasts maximizing
+  their usefulness.
+
+  % In this paper a new approach towards pollution forecasting is
+  % presented. Contrarily to the usual point-forecasting, where a single
+  % value is forecast for each horizon, in this case the full
+  % probability is predicted. This permits focusing on parts of this
+  % distribution which are of interest, i.e., the upper quantiles, which
+  % contain extreme values that trigger traffic restrictions
+\end{abstract}
+
+\begin{keyword}
+probabilistic forecasting \sep air quality \sep quantile regression
+\sep nitrogen dioxide \sep Madrid
+\end{keyword}
+
+\end{frontmatter}
+
+%\linenumbers
+
+\section{Introduction}
+\label{sec:intro}
+
+With more and more problematic pollution levels in cities around the
+world, and given the scientific consensus about their adverse effects
+on health \cite{Kampa2008362,Kim2015136,Sellier2014165}, traffic restrictions
+emerge as a temporary remedy when high pollution episodes occur. For
+example, Madrid has enforced a new air quality protocol which includes
+reducing speed limits and other restrictions to the circulation of
+pollutant vehicles when \no concentrations reach certain thresholds
+during a certain period. Anticipating the activation of such
+restrictions is critical both for the decision makers (which need to
+announce them in advance) and for the vehicle owners (which need to
+plan their transport alternatives).
+
+Notwithstanding, research on forecasting extreme pollution events is
+meagre in general and, in particular, to our knowledge, probabilistic
+forecasting has never been put in practice to deal with \no
+concentrations. Obviously, forecasting the central tendencies of the
+data distribution, i.e. the conditional mean, is not the best approach
+if the main interest is to predict possible exceedances of thresholds
+that lie on the tails of the distribution.
+
+% Urban air pollution is a major concern for its adverse effects on
+% health. The World Health Organization (WHO) estimates that air
+% pollution caused 3.7 million premature deaths worldwide in 2012
+% \cite{who_ambient_2016} and more and more studies prove its negative
+% effects on health \cite{bentayeb_association_2015}. Nitrogen dioxide
+% (\no2), together with ozone and particulate matter, is one of the
+% main air pollutants: it is a toxic gas which causes significant
+% inflammation of the airways, and is the source of nitrate aerosols,
+% which form an important fraction of particulate matter and, in the
+% presence of ultraviolet light, ozone.
+
+% Epidemiological studies have shown that symptoms of bronchitis in
+% children increase in association with exposure to \no2
+% \cite{pershagen_air_1995,brunekreef_air_1997}. There have been few
+% controlled human exposure studies on interactions with other chemical
+% pollutants, although studies show that \no2 exposure enhances
+% allergic responses of asthmatics to inhaled pollens
+% \cite{strand_nitrogen_1997}.
+
+% Nitrogen dioxide belongs to a family of highly reactive gases called
+% nitrogen oxides (NO$_\mathrm{x}$). These gases form when fuel is burned at high
+% temperatures, and come principally from motor vehicle exhaust and
+% stationary sources such as electric utilities and industrial boilers.
+% According to WHO, in most urban environments in Europe the principal
+% source of \no2 is NO$_\mathrm{x}$ from motor vehicles of all types.  Hence
+% city planners work to improve air quality by reducing traffic
+% emmisions, as evidence shows that traffic restrictions are useful in
+% reducing \no2 concentrations \cite{wang_traffic_2007}.  This is the
+% case in Madrid, where the local government recently imposed new
+% anti-pollution regulations which include traffic restrictions when
+% pollutants reach the thresholds set by the European Commission
+% \cite{european_commission_air_2008}.
+
+% % Driving restrictions have been widely used as a method to reduce
+% % urban air pollution and traffic congestion in developing
+% % countries. Santiago, Chile introduced a driving restriction in 1986
+% % and Mexico City, Mexico introduced a driving restriction in
+% % 1989. Following these two, several more Latin American cities have
+% % introduced driving restrictions, including Bogotá, Colombia and São
+% % Paulo, Brazil. Beijing and its neighboring city Tianjin also
+% % implemented driving restrictions during the 2008 Olympic Games and a
+% % modified version of the restriction continued in Beijing after the
+% % Olympics.
+
+% But driving restrictions are a severe measure which impacts the daily
+% life of millions of people which need to adapt their usual travel
+% patterns. Hence, being able to provide anticipating information about
+% future activation of the restrictions is in the interest of citizens,
+% which can plan their journeys in advance, and decision makers, as it
+% helps avoiding the exceedance of critical thresholds and has an effect
+% on popular perception of the measures. For this reason, air quality
+% forecasting is an active field of study which grew steadily during the
+% last three decades and which gathers contributions from meteorology,
+% physics, chemistry, statistics and computational intelligence.
+
+% There are several approaches to air quality forecasting and they can
+% be roughly divided in two classes: those which rely upon analyzing the
+% atmosphere status and evolution from a fluid mechanics and chemical
+% point of view and those which study pollution measures from a
+% statistical time series analysis and modelling perspective. The latter
+% can be subsequently divided in approaches that assume that the data
+% are generated by a given stochastic data model and those that use
+% algorithmic models and treat the data mechanisms as unknown
+% \cite{breiman_statistical_2001}. These algorithmic models, which can
+% be included in what is called computational intelligence (CI), have
+% experienced a recent blossoming thanks to the availability of more and
+% more computing means.
+
+% Early applications to air quality forecasting of one of the most
+% popular CI methods, i.e., artificial neural networks, were reviewed
+% back in 1998 by \cite{Gardner19982627}. Concerning \no2, many other
+% applications of CI methods followed, with applications to the air in
+% cities of different parts of the world: London
+% \cite{gardner_neural_1999}, Santiago de Chile
+% \cite{perez_prediction_2001}, Helsinki \cite{kukkonen_extensive_2003},
+% Bilbao \cite{agirre-basurko_regression_2006}, Palermo
+% \cite{brunelli_two-days_2007}, Athens
+% \cite{vlachogianni_evaluation_2011}, ...
+
+% However, the vast majority of the air quality forecasting applications
+% and experiments to date deal with what we call ``point-forecasting'',
+% as opposed to ``probabilistic forecasting'': they try to predict exact
+% future values for different pollutants through modelling their
+% conditional mean. There are some obvious disadvantages of this
+% approach, which does not consider the inherent uncertainty of the
+% predictions and is unsuitable for the cases of heavily skewed data or
+% if there is a need to examine certain important strata of the data
+% \cite{koenker_quantile_2005}. Quantile regression is a 
+
+% \cite{ziomas_forecasting_1995}
+
+% Probabilistic forecasting. Wind power, stock markets, health...
+
+% Aim of this study.
+
+% Structure of the paper.
+
+% \section{Introduction}
+% \label{sec:intro-ii}
+
+Air quality forecasting is an active field of study which grew
+steadily during the last three decades and which gathers contributions
+from meteorology, physics, chemistry, statistics and computational
+intelligence. There are several approaches to air quality forecasting
+and they can be roughly divided in two classes: those which rely upon
+analyzing the atmosphere status and evolution from a fluid mechanics
+and chemical point of view and those which study pollution measures
+from a statistical time series analysis and modelling perspective. The
+latter can be subsequently divided in approaches that assume that the
+data are generated by a given stochastic data model and those that use
+algorithmic models and treat the data mechanisms as unknown
+\cite{breiman_statistical_2001}. These algorithmic models, which can
+be included in what is called computational intelligence (CI), have
+experienced a recent blossoming thanks to the availability of more and
+more computing means.
+
+However, to date, both the causal modelling and the prediction
+research, no matter the approach, have focused mostly on the central
+tendencies of the data distribution, i.e. the conditional mean. This
+is also the case for CI-based forecasting of air quality
+\cite{Gardner19982627,Wang2003555} and its applications to the air in
+cities of different parts of the world: London
+\cite{gardner_neural_1999}, Santiago de Chile
+\cite{perez_prediction_2001}, Helsinki \cite{kukkonen_extensive_2003},
+Bilbao \cite{agirre-basurko_regression_2006}, Palermo
+\cite{brunelli_two-days_2007}, Athens
+\cite{vlachogianni_evaluation_2011}, ...
+
+Although the point forecasts, or forecasts of the central portion of
+the conditional distribution, are widely used, there are some obvious
+disadvantages associated with them. For example, point forecasting
+does not readily inform about the inherent uncertainty of the
+predictions, and is generally unsuitable for the cases of heavily
+skewed data or if there is a need to examine certain important strata
+of the series \cite{koenker_quantile_2005}.
+
+Hence, considering the highly complex nature of the interactions
+between meteorological and human factors which affect air quality, it
+can be risky to assume that the relationship between those factors and
+the concentrations of airborne pollutants is the same for unusually
+low concentrations as for unusually high (peak) concentrations. And it
+can be even more risky to assume that both relationships are of the
+same form as for the central part of the conditional
+distribution. Furthermore, there is no need for the explanatory
+variables used in forecasting the concentrations of airborne
+pollutants on the tails of a conditional distribution to be the same
+as the explanatory variables used in forecasting the expected
+concentrations or point-forecasts.
+
+This is especially true when forecasting air quality in the framework
+of anti-pollution regulations. Most of these regulations indicate that
+certain actions must be taken when pollutants exceed thresholds set by
+the authorities (as is the case of the European Commission
+\cite{european_commission_air_2008}). Modelling the upper quantiles of
+the conditional distribution through probabilistic forecasting becomes
+a necessity in this case, as we will show. In addition, modelling the
+full conditional distribution allows to obtain estimations of the
+probability of exceedance of the thresholds, which is a more useful
+estimate in terms of communicative power to the general public, as
+shown by its extensive use in meteorological forecasting.
+
+In this paper, a first application of probabilistic forecasting to air
+quality is presented. The main objective is to demonstrate the
+applicability and usefulness of this technique, so future
+concentrations of \no in the city of Madrid are forecast in terms of
+quantiles and probability of exceedance of certain thresholds. The
+rest of the paper is as follows: 
+
+
+\section{Probabilistic forecasting with quantile regression}
+\label{sec:probForec}
+
+As mentioned above, the prediction from most regression models is a
+point estimate of the conditional mean of a dependent variable, or
+response, given a set of independent variables or predictors. However,
+the conditional mean measures only the center of the conditional
+distribution of the response, and if we need a more complete summary
+of this distribution, for example in order to estimate the associated
+uncertainty, quantiles are in order. The 0.5 quantile (i.e., the
+median) can serve as a measure of the center, and the 0.9 quantile
+marks the value of the response below which reside the 90\% of the
+predicted points. Recent advances in computing have inducted the
+development of regression models for predicting given quantiles of the
+conditional distribution. The technique is called quantile regression
+(QR) and was first proposed by Koenker in 1978
+\cite{koenker_regression_1978} based on the intuitions of the
+astronomer and polymath Rudjer Boscovich in the 18th
+century. Elaborating from the same concept of estimating conditional
+quantiles from different perspectives, several statistical and CI
+models that implement this technique have been developed: from the
+original linear proposal to multiple or additive regression, neural
+networks, support vector machines, random forests etc.
+
+Quantile regression has gained an increasing attention from very
+different scientific disciplines \cite{yu_quantile_2003}, including
+financial and economic applications \cite{fitzenberger_economic_2002},
+medical applications \cite{soyiri_forecasting_2012}, wind power
+forecasting \cite{zhang_review_2014}, electric load forecasting
+\cite{7423794,gibbons_quantile_2014}, environmental modelling
+\cite{cade_gentle_2003} and meteorological modelling
+\cite{bjornar_bremnes_probabilistic_2004} (these references are just
+examples and the list is not exhaustive). To our knowledge, despite
+its success in other areas, quantile regression has not been applied
+in the framework of air quality% , with the exception of
+% \cite{martinez-silva_forecasting_2016}
+.
+
+As an illustration of the concept (for a detailed discussion of
+quantile regression, refer to \cite{koenker_quantile_2005}), given a
+set of vectors $(x_i, y_i)$, in point forecasting we are usually
+interested in what prediction $\hat y(x) = \alpha_0 + \alpha_1 x$
+minimizes the mean squared error,
+\begin{equation}
+  \label{eq:1}
+  E = \frac{1}{n} \sum^n_i \epsilon_i =
+  \frac{1}{n} \sum^n_i [ y_i - (\alpha_0 + \alpha_1 x) ]^2.
+\end{equation}
+This prediction is the conditional sample mean of $y$ given $x$% , that
+% is, $\hat y(x) = \hat\alpha_0 + \hat\alpha_1 x$
+, or the location of the conditional distribution. But we could be
+interested in estimating the conditional median (i.e., the 0.5
+quantile) instead of the mean, in which case we should find the
+prediction $\hat y(x)$ which minimizes the mean absolute error,
+\begin{equation}
+  \label{eq:2}
+  E = \frac{1}{n} \sum^n_i \epsilon_i =
+  \frac{1}{n} \sum^n_i | y_i - (\alpha_0 + \alpha_1 x) |.
+\end{equation}
+The fact is that, apart from the 0.5 quantile, it is possible to
+estimate any other given quantile $\tau$. In that case, instead of
+(\ref{eq:2}), we could minimize
+\begin{equation}
+  \label{eq:3}
+E= \frac{1}{n} \sum^n_i f( y_i - (\alpha_0 + \alpha_1 x))
+\end{equation}
+where
+\begin{equation}
+  \label{eq:4}
+  f(y-q) = \left\{ 
+\begin{array}{l l}
+\tau (y-q) & \quad \mbox{if $y \ge q$}\\
+(1-\tau) (q-y) & \quad \mbox{if $y < q$}\\
+\end{array} \right.,
+\end{equation}
+with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
+median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
+
+Thus, as we can estimate an arbitrary quantile and forecast its
+values, we can also estimate the full conditional distribution, which
+will entail us to the results presented in Section \ref{sec:results}.
+
+Among the array of methods that allow to estimate and forecast
+data-driven conditional quantiles, in this study we have chosen
+quantile regression forests for its ease of use (few parameters have
+to be chosen) and for its availability in the free software
+mathematical environment \texttt{R} \cite{r-language}.
+For a detailed discussion on quantile regression forests, see
+\cite{meinshausen_quantile_2006}.
+
+\section{Data description and experimental design}
+\label{sec:mm}
+
+\subsection{Protocol for high \no concentration episodes}
+\label{sec:madr-prot-high}
+
+Urban air quality is assessed through measuring the concentrations of
+several dangerous pollutants including ozone, nitrogen oxides and
+particulate matter. While the World Health Organization estimates that
+air pollution caused 3.7 million premature deaths worldwide in 2012
+\cite{who_ambient_2016}, authorities like the European Union have put
+forward regulations to establish limits for the airborne
+concentrations of air pollutants \cite{european_commission_air_2008}.
+
+Complying with these regulations, the city of Madrid has a dense
+Atmospheric Pollution Monitoring System including 24 stations around
+the city. The data gathered by this system are public and are made
+available in a hourly basis in a website
+\cite{ayuntamiento_de_madrid_sistema}. As mentioned above, recently,
+the local government imposed new anti-pollution measures in a protocol
+which include traffic restrictions when nitrogen dioxide
+concentrations reach the thresholds set by the EU. Concretely, in
+Madrid this air quality protocol establishes three action levels that
+are raised according to the \no concentrations: a \emph{pre-warning}
+for breaches of a threshold of 180 g/m$^3$, a \emph{warning} when
+concentrations are over 200 g/m$^3$ and an \emph{alert} when values
+over 400 g/m$^3$ are registered. 
+
+% Nitrogen dioxide (\no), together with ozone and particulate matter,
+% is a toxic gas which causes significant inflammation of the airways,
+% and is the source of nitrate aerosols, which form an important
+% fraction of particulate matter and, in the presence of ultraviolet
+% light, ozone.
+% Epidemiological studies have shown that symptoms of bronchitis in
+% children increase in association with exposure to \no
+% \cite{pershagen_air_1995,brunekreef_air_1997}. There have been few
+% controlled human exposure studies on interactions with other chemical
+% pollutants, although studies show that \no exposure enhances
+% allergic responses of asthmatics to inhaled pollens
+% \cite{strand_nitrogen_1997}.
+
+Given the associated health risks and given the fact that the social
+acceptance of the restrictions put in place by the newly established
+air quality protocol of Madrid could greatly benefit from proper
+prediction of threshold breaches, we will restrict this study to \no
+concentrations over the pre-warning threshold. However, it is clear
+the results can be readily applicable to other thresholds for \no and
+other pollutant species like ozone or particulate matter and their
+respective regulatory limits.
+
+\subsection{Nitrogen dioxide data}
+\label{sec:no2}
+
+\begin{figure}[tbp]
+\begin{center}
+ \includegraphics[width=0.8\columnwidth]{img/map.png}
+  \caption{Map of Madrid's Atmospheric Pollution Monitoring System
+    stations.}
+\label{figure:map}
+\end{center}
+\end{figure}
+
+All of the 24 stations of Madrid's monitoring system, which are
+depicted in Figure \ref{figure:map}, capture hourly data for \no. They
+are spatially distributed according to European regulations and are
+classified into three types: background stations, suburban stations
+and traffic stations. The latter measure mainly emissions from
+vehicles in their surrounding streets, and they are more prone to
+register peak values exceeding the \no safety limits. For this study,
+as an example, one of these stations has been selected, namely the
+Plaza de Espa\~na station (marked with a letter C in the
+figure). 
+
+\begin{figure}[tbp]
+\begin{center}
+ \includegraphics[width=1.\columnwidth]{img/hourlyConc.eps}
+  \caption{Intraday distribution (left) and histogram (right) of the concentration of \no.}
+\label{figure:hourlyConc}
+\end{center}
+\end{figure}
+
+The time series for Plaza de Espa\~na consists of hourly measured
+values of the airborne concentrations of \no from 01/01/2000 to
+30/11/2015. As can be seen in \ref{figure:hourlyConc}, these values
+exhibit a clear intraday pattern, in which the higher values are
+located in two peaks around the morning and evening (with highest
+average value at 19h) while the nightly hours (from 00h to 05h) have
+lower average concentrations. Regarding the peak values over the
+threshold pre-warning level of 180 $\mu \mathrm{g/m}^3$, they are
+almost never reached during the night. In the same figure we can see
+that the distribution of \no presents a positive skew, with values
+over the thresholds being rare. In fact, the 99.8\% of the data are
+equal or below the pre-warning threshold, while a total amount of 1379
+points exceed it.
+
+\subsection{Weather data}
+\label{sec:weather-data}
+
+Apart from air quality data, some of the 24 monitoring stations of
+Madrid's Atmospheric Pollution Monitoring System also register
+meteorological variables, including hourly average temperature and
+wind speed, hourly accumulated rainfall and barometric pressure. These
+variables encode an approximate picture of the atmospheric situation,
+and hence are known to be related to the evolution of the \no
+concentrations.
+
+The previously selected Plaza de Espa\~na station registers these
+variables except for barometric pressure. However, assuming that the
+variations in pressure should not be very significative, we decided,
+for this variable, to use data from the closest station that provides
+it: Casa de Campo (marked with an M in Figure \ref{figure:map} and
+around 3.000 m away from Plaza de Espa\~na). In order to account for
+changes in the atmosphere status, the hourly differences of pressure
+were used instead of the original series.
+
+\subsection{Experimental design}
+\label{sec:experimental-design}
+
+\begin{figure}[tbp]
+\begin{center}
+ \includegraphics[width=0.6\columnwidth]{img/schema.eps}
+  \caption{Summary of the experimental design.}
+\label{figure:example}
+\end{center}
+\end{figure}
+
+Once all the data was gathered, the five series (\no, temperature,
+wind speed, rainfall and difference of pressure) were aligned and
+merged using their respective time dimension, and UTC times were used
+for all of them. Then, each of them was lagged in order to create new
+variables in the following manner: for \no, a set of embedding
+dimensions was selected with the objective to have into account the
+recent past hours, the analogous hours of the day before and the
+analogous hours of the same day of the week before, that is,
+$\mathbf{d}_{\mathrm{NO}_2} = (1,2,3,4,24,25,26,27,168,169,170,171)$.
+For the meteorological variables, we selected only the past hours:
+$\mathbf{d}_{\mathrm{met}}= (1,2,3,4)$. Then, for each hour $t$ in the
+15 years covered by the data, a vector was constructed as
+$\mathrm{\mathbf{z}}_t = (y_{t-\mathbf{d}_{\mathrm{NO}_2}},
+x^{\mathrm{Temp}}_{t-\mathbf{d}_{\mathrm{met}}},
+x^{\mathrm{Wind}}_{t-\mathbf{d}_{\mathrm{met}}},
+x^{\mathrm{Rain}}_{t-\mathbf{d}_{\mathrm{met}}},
+x^{\mathrm{Press}}_{t-\mathbf{d}_{\mathrm{met}}}; y_t)$.
+
+The time of day (as proven by Figure \ref{figure:hourlyConc}), the
+weekday (as is known that during the weekends there are less vehicles)
+and the day of the year (as seasonal effects are also present) were
+also included as dummy variables in the set of predictors. As a
+result, a matrix with 139.513 rows and 33 columns (32 predictor
+variables and one response variable $y_t$) was constructed.
+
+% However, as can be also seen in Figure \ref{figure:hourlyConc}%
+% % (page \pageref{figure:hourlyConc})
+% , during the nightly hours almost no \no points exceeding the
+% thresholds were registered. Given the fact that we are mostly
+% interested in studying the values around these
+% thresholds, and considering the huge volume of data available%  (with
+% % 139.513 points just in the \no series)
+% , one third of the data,
+% corresponding to the hours from 00h to 07h of the response variable,
+% were removed from the final series. However, the rest of the
+% variables kept lagged values for these hours, accounting for
+% possible night effects on the peaks.
+% In the same spirit, we removed from the data those months in which the
+% \no values never reached the first threshold of 180 g/m$^3$.
+
+Reserving a part of the data to check that the models are able to
+generalize is a usual procedure when dealing with statistics or
+computational intelligence models. In order to have enough peak data
+to allow inference, we divided our data in two blocks: a block
+from 01/01/2000 to 31/12/2009 will be used to train the
+models, and the rest of the data, from 01/01/2010 to 31/12/2015 will
+be used to test their properties with unseen data.
+
+\subsection{Evaluation of probabilistic forecasts}
+\label{sec:eval-prob-forec}
+
+The evaluation of probabilistic forecasts is a complex problem and an
+open issue in the literature \cite{mcsharry_methodology_2009}. On the
+one hand, given the fact that we can derive expected values from
+probabilistic forecasts, we can use the standard metrics for
+evaluating point forecasts, as root mean squared error (RMSE), mean
+average error (MAE), correlation or bias.
+
+These measures can be compared against some reference models, to
+establish how the probabilistic forecasts perform when forecasting
+expected values in the central part of the distribution. In this work,
+we used three point forecasts models as benchmark: persistence, a
+linear regression and random forests.
+
+Persistence, also known as naive predictor, is the
+simplest way of producing a forecast. The persistence forecasts are
+obtained by issuing the last observation as the forecast for all
+future horizons: $\hat y_{t+k|t} = y_t$. This method works well when
+the patterns of the series change very slowly with time.
+
+Another simple method of producing forecasts is through a least-squares linear
+regression which combines the predictors $\mathbf{z}_t$ (as defined in
+section \ref{sec:experimental-design}) in a linear manner to compute
+estimations for future values of the series.
+
+Finally, to obtain a more state-of-the-art benchmark, a nonlinear
+model from the machine learning field was selected and trained to
+point-forecast future values of the series. Among the panoply of
+nonlinear machine learning models available, we selected Random
+Forests \cite{breiman_random_2001}. We used the \texttt{R}
+implementation \cite{randomforests} with its default parameters.
+
+However, on the other hand, if non-central regions of the forecast
+distributions are to be evaluated, more elaborated metrics must be
+used.
+%
+% \subsubsection{Reliability and sharpness}
+% \label{sec:reli-sharpn}
+%
+Amongst the main attributes of probabilistic forecasts used for
+evaluation, reliability and sharpness are two of the most common.
+
+Reliability deals with how close the actual distribution of the data
+is to the predicted one and is related to the unconditional coverage
+of a prediction interval. That is, if a predicted 50\% interval covers
+50\% of the observed load values, then it is considered reliable. In a
+way, reliability for probabilistic forecasting is similar to bias for
+point forecasting, a high reliability corresponding to a low bias.
+
+However, reliability is not sufficient to characterize the quality of
+a probabilistic forecast since a forecast based on climatology is
+perfectly reliable and yet has no skill. A model is said to have no
+skill when it provides the same forecast distribution for all
+situations. A skillful model will provide sharper distributions for
+more certain situations and wider distribution when the uncertainty on
+the outcome is higher. 
+
+Sharpness deals with how tightly the predicted distribution covers the
+actual one. A 95\% interval is said to be sharp if the maximum and
+minimum values of the observed values are very close to the upper and
+lower bounds of the predicted interval. Sharpness for probabilistic
+forecasts is similar to the variance of errors for point forecasting,
+where a high sharpness corresponds to a low variance of
+errors.
+
+Reliability is related to sharpness in the same way bias is
+related to variance in deterministic forecast evaluation. That is,
+there is usually a sharpness-reliability performance trade-off in the
+same way that there is a bias-variance trade-off for point forecast
+models.
+
+\subsection{Evaluation of alert forecasting}
+\label{sec:eval-extr-value}
+
+The evaluation of binary forecasts (forecasts of events which might
+occur or not) is usually performed through summary statistics of the
+contingency table, from which different ways of measuring the goodness
+of an alert forecast have been proposed
+\cite{mcsharry_methodology_2009}.  A contingency table arranges the
+four different outcomes which are expected from an alert forecast:
+true positives (the alert is forecast and it actually happens, noted
+as $TP$), false positives (the alert is forecast but it does not
+happen, $FP$), true negatives (no alert is forecast and none
+happens, $TN$) and false negatives (no alert is forecast but
+it actually happens, $FN$).
+
+Two of the most popular performance measures are specificity and
+sensitivity. Specificity, also known as true negative rate, measures
+the proportion of negatives that are correctly forecast as such:
+$\mathrm{\emph{spec}} = TN / (TN + FP)$.  Sensitivity, also called true
+positive rate, is the fraction of positives that were correctly
+forecast: $\mathrm{\emph{sens}} = TP / (TP + FN)$.
+
+However, predicting extreme values is a special situation in which the
+imbalance of the different types of events plays a crucial role
+\cite{ferro_deterministic_2011}.  Both specificity and sensitivity
+behave poorly in the framework of problems which have few true
+positives with respect to the total, which is our case. Hence, some
+other measures have been proposed to account for imbalanced
+contingency tables:
+\begin{description}
+\item[Balanced accuracy] Proposed by \cite{brodersen2010balanced}, it
+  can be defined as the average accuracy (number of correct
+  predictions divided by number of predictions) obtained in each
+  class:
+  $\mathrm{\emph{BAcc}} = \frac{1}{2} \left(\frac{TP}{TP+FN} +
+    \frac{TN}{TN+FP}\right)$. It ranges from 0 to 1, with 0 indicating
+  no accuracy.
+\item[True skill statistic] Also known as Hanssen-Kuiper skill
+  statistic, measures how well did the forecast separate the positive
+  from the negative events:
+  $\mathrm{\emph{TSS}} = \frac{TP}{TP + FN} - \frac{FP}{TN+FP}$. It ranges from -1 to
+  1, and 0 indicates no skill.
+\item[Extreme dependency score] Compares the fraction of the observed
+  events with the fraction of the correctly forecast events. It ranges
+  from -1 to 1, perfect score is 1. It
+  does not tend to zero for rare events \cite{stephenson2008extreme}:
+  \begin{equation}
+    \label{eq:6}
+    \mathrm{\emph{EDS}} = 2 \frac{\ln(\frac{TP+FP}{n})}{\ln(\frac{TP}{n})} - 1,
+  \end{equation}
+  where $n= TP+FN+TN+FN$.
+\end{description}
+
+Finally, another interesting tool to evaluate alert forecasts is the
+relative operating characteristic or ROC curve, which is a graph that
+illustrates the performance of a binary classifier system as its
+discrimination threshold is varied. The curve is created by plotting
+sensitivity against ($1 -$ specificity).
+
+
+\section{Results and discussion}
+\label{sec:results}
+
+We performed four different experiments, and their results are shown
+in this section. First we will compare the expected values obtained
+through probabilistic forecasts with reference point forecasts
+models. Secondly, we will study the relative importance associated
+with the variables used in the first experiment, with the aim to
+discover any distinctive pattern in how each variable is used for the
+different regions of the forecast distributions. In the third
+experiment, we center our attention in the prediction of the extreme
+values which exceed the regulation's thresholds, while in the fourth
+we show how the probability of alerts can be predicted and presented
+in more informative ways.
+
+\subsection{Reference models}
+\label{sec:deterministic}
+
+In the first experiment, we used quantile regression to compute
+point-forecasts of the expected value (median) for one-day ahead
+predictions of \no concentrations.
+
+% latex table generated in R 3.2.2 by xtable 1.7-4 package
+% Thu Mar 31 18:48:22 2016
+\begin{table}[tbp]
+\caption{\label{tab:determ}Point forecast error measures for reference
+models (persistence, linear regression, random forests and median of
+the probabilistic model (QRF).}
+  \centering
+\begin{tabular}{rrrrr}
+  \toprule
+ & RMSE & MAE & Bias & Corr \\ 
+  \midrule
+  Persistence & 13.47 & 9.23 & 0.04 & 0.88 \\ 
+  LR   & 11.51 & 8.16 & -1.62 & 0.91 \\ 
+  RF   & 11.27 & 7.89 & -2.14 & 0.92 \\
+  Q50  & 11.30 & 7.63 & -0.27 & 0.91 \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+Table \ref{tab:determ} shows the values of the root mean squared error
+(RMSE), mean average error (MAE), bias and correlation for the
+aforementioned reference models and the median forecast by the
+probabilistic model. As we can see, the median-based model Q50 behaves
+well in general compared to the other models, being especially good in
+terms of MAE and bias. This might be related to the median being more
+robust than the mean in the presence of outliers.
+
+However, in this framework, we are, as a matter of fact, interested in
+those outliers, as they precisely are the values which trigger the
+activation of the air quality protocol.
+
+\subsection{Variable importance}
+\label{sec:vble}
+
+\begin{figure}[tbp]
+\begin{center}
+ \includegraphics[width=.85\columnwidth]{img/varImpPlot.png}
+ \caption{Importance of the variables in quantiles 0.05, 0.50 and
+   0.95, in descending order according to the importance in the higher
+   quantile.
+   % The dotted line marks the limit for variables with importance
+   % equal to 2 in quantile 0.95.
+ }
+\label{figure:varImpPlot}
+\end{center}
+\end{figure}
+
+Quantile regression forests offer a straightforward method for feature
+selection: the method allows for the direct calculation of the mean
+decrease in accuracy, which is a measure of the variable
+importance. We will use it in this second experiment to investigate
+which variables are more important for the problem under
+consideration.
+
+The idea is to directly measure the impact of each feature on the
+accuracy of the model, and this is done through a random alteration of
+the values of each feature. Once this alteration is done, it is
+possible to measure how much it decreases the accuracy of the
+model. For unimportant variables, this should have little or no effect
+on the model accuracy, while altering important variables should
+significantly decrease it.
+
+In Figure \ref{figure:varImpPlot} we can see the importance of each of
+the 31 variables considered by the model according to their mean
+decrease in accuracy, for quantiles 0.05, 0.5 and 0.95. The variables
+are sorted according to their importance in the latter quantile, as
+this is the region of the distribution that we are most interested
+in. To overcome the high computational costs of the method to obtain
+variable importance and to account for the randomness which is
+inherent to the model, the importance values were computed for 30
+random samples of 100 vectors $\mathrm{\mathbf{z}_t}$, as defined in
+Section \ref{sec:experimental-design}. In the figure, the average
+importance for each variable over the 30 runs is shown.
+
+Unsurprisingly, the \no value measured the hour before (noted
+\textsf{NO2\_1} in the graph) is clearly the most important variable
+in the three quantiles. This is closely related to the principle
+behind the persistence or naive predictor, and hence suggests that the
+improvements over this method are to be obtained by properly
+exploiting the rest of the variables which complement the predictive
+power of the value of \no measured at $t-1$. The value of \no measured
+at the same hour of the day before, \textsf{NO2\_24} in the graph, is
+the second variable in importance for all the three considered
+quantiles, which accounts for the intra-daily effect shown in Figure
+\ref{figure:hourlyConc}.
+
+If we center our attention in the 0.95 quantile, it is remarkable that
+the difference of barometric pressure (\textsf{difPres}) does not seem
+to be as important as expected, although it is clearly more important
+in the upper quantile than in the other two. This might be considered
+counter-intuitive, as the atmospheric stability is one of the
+circumstances known to be usually required for high \no concentrations
+in the air. Concerning wind, we can see how the wind speed registered
+at time $t-1$ (\textsf{WindSpeed\_1}) is of high importance while
+other, more old wind speed measures are not. This hints at the
+immediate washing effect of high wind speeds, which carry \no outside
+the city (its effect being even more important for quantile
+0.05). Finally, we can observe that \textsf{Rainfall} can be
+considered unimportant for \no forecasting.
+
+Finally, it is interesting to highlight the differences amongst the
+three considered quantiles, which prove the need and usefulness of
+quantile forecasting of \no. The distribution of variable importances
+for the median quantile, in particular, shows a separate pattern from
+the upper and lower quantiles, being the case that the difference
+between the value of \no at time $t-1$ and the rest of the variables
+is much more acute for the median quantile than for the others.
+
+\subsection{Probabilistic forecasting of extreme values}
+\label{sec:probabilistic}
+
+\begin{figure}[tbp]
+\begin{center}
+  \includegraphics[width=1.\columnwidth]{img/reliability-sharpness.png}
+  \caption{\label{fig:reliab}Reliability (left) and sharpness (right).}
+\end{center}
+\end{figure}
+
+The third experiment consisted in predicting the full distribution of
+\no concentrations. 
+
+In the left part of Figure \ref{fig:reliab}, we see that the
+reliability of the forecasts is satisfactory for all considered
+probabilities. The model predictions are centered around the ideal
+values, although the model slightly over-predicts for low
+probabilities and under-predicts for higher probabilities. The slight
+under-prediction for high quantiles is not necessarily negative in the
+frame of \no forecasting: it means that the model is slightly
+conservative which can be considered a good property since the
+thresholds should not to be exceeded and the cost of false alarms is
+high.
+
+In the right part of Figure \ref{fig:reliab}, the sharpness of the
+forecasts, for five different coverage rates (90\%, 70\%, 50\%, 30\%
+and 10\%) is presented. As expected, the median inter-quantile range
+decreases with the coverage rate. For all coverage rates the
+inter-quantile range increases with forecast horizon due to the
+increasing forecast uncertainty. Also, the forecast can be said to be
+skillful since the minimum and especially the maximum observed
+inter-quantile distances are significantly different from the median
+values.
+
+\begin{figure*}[tbp]
+\begin{center}
+  \includegraphics[width=1.\textwidth]{img/q95forecast.png}
+  \caption{Forecasts for quantile 0.95. The horizontal line marks the
+    threshold of 180, while the grey line represents the
+    forecast values for quantile 0.95, small dots are observed values
+    and triangles represent correctly forecast peak values.}
+  \label{figure:q95forec}
+\end{center}
+\end{figure*}
+
+In order to show the performance of the model when forecasting extreme
+values, Figure \ref{figure:q95forec} shows the 0.95 quantile forecasts
+for the last six years of the \no series. As we can see, the forecasts
+for this model (represented by the gray line) acts as an upper
+envelope for the series, which results in peaks over the 180 g/m$^3$
+warning threshold being properly forecast in many cases. This is
+especially true in the event of high concentrations episodes, as those
+occurred in late 2014 and around the start of 2015, for example. 
+
+\begin{table}[tbp]
+  \centering
+  \caption{\label{tab:results}Performance measures (as defined in
+    Section \ref{sec:eval-extr-value}) for the considered
+    models over the test set.}
+\begin{tabular}{rrrrrr}
+  \toprule
+ & persist. & LR & Q50 & Q95 & th=180 \\%& th=200 \\ 
+  \midrule
+  % total & 47997 & 47997 & 47997 \\%& 47997 \\ 
+  \emph{TP} & 24 & 25 & 15 & 59 & 64 \\%& 62 \\ 
+  \emph{FP} & 45 & 27 & 12 & 309 & 1006 \\%& 1030 \\ 
+  \emph{TN} & 47.884 & 47.902 & 47.917 & 47.620 & 46.923 \\%& 46899 \\ 
+  \emph{FN} & 44 & 43 & 53 & 9 & 4 \\%& 6 \\
+  \midrule
+  \emph{spec} & 1.00 & 1.00 & 1.00 & 0.99 & 0.98 \\%& 0.98 \\ 
+  \emph{sens} & 0.35 & 0.37 & 0.22 & 0.87 & 0.94 \\%& 0.91 \\ 
+  % accuracy & 1.00 & 0.99 & 0.98 & 0.98 \\ 
+  \emph{BAcc} & 0.68 & 0.68 & 0.61 & 0.93 & 0.96 \\%& 0.95 \\ 
+  % positive predictive value & 0.56 & 0.16 & 0.06 & 0.06 \\ 
+  % frequency bias & 0.40 & 5.41 & 15.74 & 16.06 \\ 
+  % false alarm ratio & 0.44 & 0.84 & 0.94 & 0.94 \\ 
+%  false positive rate & 0.00 & 0.00 & 0.00 & 0.01 & 0.02 \\%& 0.02 \\ 
+%  true positive rate & 0.35 & 0.37 & 0.22 & 0.87 & 0.94 \\%& 0.91 \\ 
+  \emph{TSS} & 0.35 & 0.37 & 0.22 & 0.86 & 0.92 \\%& 0.89 \\ 
+  \emph{EDS} & 0.73 & 0.74 & 0.63 & 0.96 & 0.98 \\%& 0.97 \\ 
+  % f-score & 0.20 & 0.27 & 0.11 & 0.11 \\ 
+   \bottomrule
+\end{tabular}
+\end{table} 
+
+Table \ref{tab:results} shows the contingency table and the
+performance measures described in Section \ref{sec:eval-extr-value}
+for the various models considered. The first two columns correspond to
+the persistence and the linear regression models. The third and fourth
+column correspond to the 0.50 and 0.95 quantiles, respectively. The
+fifth column will be analized below.
+
+The first thing we verify in the table is that, for all the models,
+the amount of true negatives (values below the threshold) largely
+exceeds the amount of true positives. This causes the specificity to
+be trivially almost perfect in all the cases, an evidence of why this
+measure is not very useful in this context.
+
+However, in terms of balanced accuracy (\emph{BAcc}), true skill score
+(\emph{TSS}) and extreme dependency score (\emph{EDS}), there is a
+clear pattern which differentiates the different mean or median
+forecasts from the 0.95 quantile forecast. As expected, the latter
+manages to predict a higher number of true positives, whereas
+incurring in far less false negatives. This is reflected by the three
+performance measures, the 0.95 quantile forecast consistently
+outperforming the other models.
+
+As stated above, quantile regression allows for the prediction of any
+arbitrary quantile. Hence, in order to predict the protocol alerts,
+corresponding to the 180 $\mathrm{\mu g/m}^3$ threshold, we might as
+well compute which quantile does this threshold define in the full
+distribution of the data. In fact, it corresponds to the 0.995
+quantile, and although conventional large sample theory for quantile
+regression does not apply sufficiently far in the tails (for such
+extreme quantiles there usually are not enough data to guarantee that
+the model is correct), we have used QRF to predict it: it corresponds
+to the fifth column of Table \ref{tab:results}. It is shown in this
+column that the model manages to predict extreme values outperforming
+the 0.95 quantile in all the measures except for specificity. Out of
+the 68 alerts registered, this model manages to properly predict 64,
+although it also produces around three times more false positives than
+the 0.95 quantile.
+
+\begin{figure}[tbp]
+\begin{center}
+ \includegraphics[width=1\columnwidth]{img/ROC.png}
+ \caption{ROC curve for the two considered quantile forecasts. The
+   dashed lines indicate the location of the (sensitivity,
+   1-specificity) point corresponding to a threshold of 180
+   $\mathrm{\mu g/m}^3$.}
+\label{figure:ROC}
+\end{center}
+\end{figure}
+
+Finally, in \ref{figure:ROC}, the ROC curves for the 0.50 and 0.95
+quantile forecasts are shown. As we can see, the point of the curve
+corresponding to the threshold of 180 $\mathrm{\mu g/m}^3$ (marked by
+the dashed lines) shows much better properties in the case of the 0.95
+quantile than for the 0.50 quantile.
+
+\subsection{Forecasting the probability of alerts}
+\label{sec:alertProb2}
+
+\begin{figure}[tbp]
+\begin{center}
+  \includegraphics[width=0.95\columnwidth]{img/ep_nov2015.png}
+  \caption{For a period in November, 2015, the upper graph represents
+    observed values (red line), alert threshold (dashed horizontal
+    line) and distribution of the forecasts (boxplots). The lower
+    graph shows probability of exceedance of the threshold.}
+\label{figure:PoE}
+\end{center}
+\end{figure}
+
+Following \cite{raftery_use_2014}, there are different types of users
+and applications of probabilistic forecasts, and this suggests that it
+is important for developers of probabilistic forecasts to interact
+with the users to agree on the presentation of forecasts which is more
+useful to them.
+
+The fourth experiment is an example of an elaboration over the
+probabilistic results of the models that could help decision-making
+authorities to better understand the forecasts and adapt their
+policies to them. Figure \ref{figure:PoE} shows, in two different
+fashions, the predictions for a period in November, 2015, in which
+a high \no concentrations episode was registered.
+
+The upper part of the figure is what is known in the meteorology field
+as an ``EPSgram''. EPSgrams (which take its name from the Ensemble
+Prediction System of the ECMWF) display the time evolution of the
+distribution of a magnitude. In the graph, we can see how the forecast
+\no distribution varied during the episode.  The forecast distribution
+at each forecast time is represented by a box-and whiskers plot
+showing the median (short horizontal line), the 25th and 75th
+percentiles (vertical box) and 5th and 95th percentiles (vertical
+lines).
+
+Obviously, although it conveys a large and comprehensive amount of
+information, the representation of the forecasts through EPSgrams
+requires a scientific knowledge that might not be available to
+decision-makers nor citizens. In order to provide them with a more
+easily interpretable and understandable representation, the lower
+part of Figure \ref{figure:PoE} shows, for each forecast, the
+probability of exceedance for the 180 $\mathrm{\mu g/m}^3$ threshold
+which triggers the first alert in the \no protocol.
+
+This predicted probability of exceedance, which can be represented
+through several graphical solutions (for example as a pie chart or
+equivalent) is proven to be a useful and understandable way to publish
+this type of information. Furthermore, meteorological services make
+use of it in the dissemination of the weather forecasts, which in turn
+implies that the public is already familiarized with it.
+
+\section{Conclusions}
+\label{sec:concl}
+
+In this paper, a first application of probabilistic forecasting to the
+problem of predicting extreme \no pollution episodes has been
+presented. Data from the air quality sensor network of the city of
+Madrid have been used to develop quantile regression models tailored
+to predict one hour-ahead \no concentrations in a urban location.
+
+Through four different experiments, it has been shown that
+probabilistic forecasting using quantile regression has advantages
+over traditional point-forecasting, allowing for a better prediction
+of extreme concentrations and also a more insightful representation of
+the predictions.
+
+In addition to the median, the proposed approach allows for the
+prediction of the whole distribution of the future values of \no
+concentrations. This is especially useful when, as is the case, the
+tails of the distribution are of interest, allowing for a more precise
+prediction of extreme values.
+
+We have shown how, when used to predict the median, the proposed model
+compares favourably to point-forecasting approaches including simple
+models as persistence or linear regression as well as complex and
+highly nonlinear models as random forests.
+
+On the other hand, we have shown the accuracy and usefulness of the
+probabilistic predictions, which have good sharpness and
+reliability. We have used the forecast upper quantiles to predict
+high \no concentrations bond to produce alerts in the air quality
+protocol of the municipality of Madrid, and the results indicate that
+our proposal is able to predict these episodes in a much more
+dependable way.
+
+As a by-product of the chosen model, we performed a study about the
+relative importance of the (autoregressive and meteorologic)
+independent variables available, confirming, in a purely data-driven
+approach, some of the assumptions made by other authors about the
+atmospheric interactions affecting the \no concentrations.
+
+Finally, we have shown how probabilistic forecasts can be represented
+in an comprehensible and intelligible way, thus allowing authorities
+and decision-makers, as well as the general public, to make a more
+beneficial use of the predictions.
+
+Extensions to this work, which has been considered by the Municipality
+of Madrid to renew its predictive operational models, are under
+development, including spatio-temporal considerations, longer
+forecasting horizons and the inclusion of other covariates including
+numerical predictions.
+
+\section*{References}
+
+\bibliography{refs_nourl}
+
+\end{document} 
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
