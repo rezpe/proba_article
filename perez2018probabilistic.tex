@@ -148,6 +148,28 @@ For a detailed discussion on quantile regression forests, see
 \cite{meinshausen_quantile_2006}.
 
 \section{Data description and experimental design}
+
+\subsection{k-Neighbors}
+
+
+The probabilistic k-Neighbors is based on the competition entry from [K-nearest neighbors for GEFCom2014 probabilistic wind power forecasting]. We are using a k-neighbor algorithm, where instead of aggregating the targets for those k-neighbors (by taking the mean or the median), we are calculating the quantiles of those targets.
+
+We then use the CRPS of our distribution estimation to get the best number of k-neighbor. As you can see in the chart, we chose 50 as the optimal number of neighbor.
+
+\includegraphics[width=0.4\textwidth]{kneighbor_crps}
+
+\subsection{Gradient Boosted Tree}
+
+We modify the cost function to calculate the . This means that we need to train a model for each of the percentiles we want to
+forecast. The other problem is that the percentiles can cross. We will use the method in order to correct that.
+
+\subsection{Quantile Random Forest}
+
+The quantile random forest is based on the usual random forest. The diferent trees create partitions out of the data and 
+they select a partition in order to make the prediction. However, this time, the targets on the partition are not aggregated,
+but are used to create a distribution function.
+
+
 \label{sec:mm}
 
 \subsection{Protocol for high \no concentration episodes}
