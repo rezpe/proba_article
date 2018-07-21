@@ -26,7 +26,8 @@
 \title{A comparison of probabilistic forecasting methods for extreme \no pollution episodes}
 
 \author{Sebasti\'an P\'erez}
-\address{(afiliaci\'on y direcci\'on)}
+\address{Artificial Intelligence Department\\Universidad Nacional de
+  Educaci\'on a Distancia --- UNED\\c/ Juan del Rosal, 16, Madrid, Spain}
 
 \author{Jos\'e L. Aznarte\fnref{myfootnote}}
 \address{Artificial Intelligence Department\\Universidad Nacional de
@@ -95,6 +96,81 @@ in the framework of air quality% , with the exception of
 % \cite{martinez-silva_forecasting_2016}
 .
 
+Thus, as we can estimate an arbitrary quantile and forecast its
+values, we can also estimate the full conditional distribution, which
+will entail us to the results presented in Section \ref{sec:results}.
+
+Also, probabilistic forecasting is an advantage as we need to predict 
+when the target will be above a certain threshold (180). So instead of having a 
+Yes/No Answer, we are calculating the probability of the target being the above 
+the threshold.
+
+Among the array of methods that allow to estimate and forecast
+data-driven conditional quantiles, in this study we have chosen
+k-neighbors quantile regression, quantile regression forests and quantile XGBoost. 
+We will compare the different algorithms through the CRPS metric for the 
+distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
+
+\section{Data description and experimental design}
+
+\subsection{Data Input}
+
+We will use as inputs for our regressor:
+\begin{itemize}
+  \item the last 166 values
+  \item calendar variables that represent the status of the day: bank holiday, laboral, type of holiday ...
+\end{itemize}
+
+\subsection{Feature Preprocessing}
+
+We will extract the seasonality of the data through a Fourier Transform and we will compress the 
+data in the holidays variable. We will select the last 166 values as the inputs of our regressor.
+
+\subsection{k-Neighbors}
+
+The probabilistic k-Neighbors is based on the competition entry from 
+[K-nearest neighbors for GEFCom2014 probabilistic wind power forecasting]. 
+We are using a k-neighbor algorithm, where instead of aggregating the targets for those k-neighbors 
+(by taking the mean or the median), we are calculating the quantiles of those targets.
+
+We will calibrate the algorythm through the use of the CRPS of our distribution estimation 
+to get the best number of k-neighbor. As you can see in the chart, we chose 50 as the optimal 
+number of neighbor.
+
+\includegraphics[width=0.4\textwidth]{kneighbor_crps}
+
+\subsection{Quantile Random Forest}
+
+We will use the quantile random forest as described in . Quantiles are built out of the observations 
+from the training set that belong to the same leafs as the observation to predict. The implementation is in:
+For a detailed discussion on quantile regression forests, see
+\cite{meinshausen_quantile_2006}.
+References:
+         https://stat.ethz.ch/~nicolai/quantregforests.pdf
+         http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
+         https://scikit-garden.github.io/examples/QuantileRegressionForests/
+         https://github.com/dfagnan/QuantileRandomForestRegressor/blob/master/QuantileRandomForestRegressor_v2.py
+         http://scikit-learn.org/stable/auto_examples/tree/plot_unveil_tree_structure.html
+
+\subsection{Gradient Boosted Tree}
+
+Gradient Boosted Trees is a technique that consist on growing trees based on the compromise 
+of a cost function and a regularization functions. This cost function is usually used to get 
+the mean of the signal. But we are modifying the cost function 
+in order to determine the quantiles of the function. We need to run a model per quantile. 
+The main problem with this approach is that since quantiles are calculated separately, 
+we can have quantile crossing: non monotonicity of the predicted
+CDF. In order to solve that, we will apply the technique from.
+
+References for xgboost modified:
+    https://medium.com/bigdatarepublic/regression-prediction-intervals-with-xgboost-428e0a018b
+
+references for non crossed:
+    https://arxiv.org/pdf/0704.3649.pdf
+    http://www.mit.edu/~vchern/curves-final2.pdf
+    https://www.nr.no/~thordis/files/Frei2012.pdf
+    https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA7880
+
 As an illustration of the concept (for a detailed discussion of
 quantile regression, refer to \cite{koenker_quantile_2005}), given a
 set of vectors $(x_i, y_i)$, in point forecasting we are usually
@@ -134,40 +210,6 @@ where
 \end{equation}
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
 median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
-
-Thus, as we can estimate an arbitrary quantile and forecast its
-values, we can also estimate the full conditional distribution, which
-will entail us to the results presented in Section \ref{sec:results}.
-
-Among the array of methods that allow to estimate and forecast
-data-driven conditional quantiles, in this study we have chosen
-quantile regression forests for its ease of use (few parameters have
-to be chosen) and for its availability in the free software
-mathematical environment \texttt{R} \cite{r-language}.
-For a detailed discussion on quantile regression forests, see
-\cite{meinshausen_quantile_2006}.
-
-\section{Data description and experimental design}
-
-\subsection{k-Neighbors}
-
-
-The probabilistic k-Neighbors is based on the competition entry from [K-nearest neighbors for GEFCom2014 probabilistic wind power forecasting]. We are using a k-neighbor algorithm, where instead of aggregating the targets for those k-neighbors (by taking the mean or the median), we are calculating the quantiles of those targets.
-
-We then use the CRPS of our distribution estimation to get the best number of k-neighbor. As you can see in the chart, we chose 50 as the optimal number of neighbor.
-
-\includegraphics[width=0.4\textwidth]{kneighbor_crps}
-
-\subsection{Gradient Boosted Tree}
-
-We modify the cost function to calculate the . This means that we need to train a model for each of the percentiles we want to
-forecast. The other problem is that the percentiles can cross. We will use the method in order to correct that.
-
-\subsection{Quantile Random Forest}
-
-The quantile random forest is based on the usual random forest. The diferent trees create partitions out of the data and 
-they select a partition in order to make the prediction. However, this time, the targets on the partition are not aggregated,
-but are used to create a distribution function.
 
 
 \label{sec:mm}
