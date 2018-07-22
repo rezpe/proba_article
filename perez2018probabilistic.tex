@@ -25,7 +25,7 @@
 
 \title{A comparison of probabilistic forecasting methods for extreme \no pollution episodes}
 
-\author{Sebasti\'an P\'erez}
+\author{Sebasti\'an P\'erez Vasseur}
 \address{Artificial Intelligence Department\\Universidad Nacional de
   Educaci\'on a Distancia --- UNED\\c/ Juan del Rosal, 16, Madrid, Spain}
 
@@ -130,27 +130,26 @@ data in the holidays variable. We will select the last 166 values as the inputs 
 
 The probabilistic k-Neighbors is based on the competition entry from 
 [K-nearest neighbors for GEFCom2014 probabilistic wind power forecasting]. 
-We are using a k-neighbor algorithm, where instead of aggregating the targets for those k-neighbors 
-(by taking the mean or the median), we are calculating the quantiles of those targets.
+This algorithm is based on the standard k-Neighbor, where instead of aggregating the targets of the
+k nearest points to the input (by taking the mean or median for example), it builds a distribution 
+from those neighbors.
 
-We will calibrate the algorythm through the use of the CRPS of our distribution estimation 
-to get the best number of k-neighbor. As you can see in the chart, we chose 50 as the optimal 
+We need to find an optimal number k for our model. We will use the CRPS of the prodeicted distribution
+to get the best k. As you can see in the chart, 50 seems to be the optimal 
 number of neighbor.
 
 \includegraphics[width=0.4\textwidth]{kneighbor_crps}
 
 \subsection{Quantile Random Forest}
 
-We will use the quantile random forest as described in . Quantiles are built out of the observations 
-from the training set that belong to the same leafs as the observation to predict. The implementation is in:
+We will use the quantile random forest as described in . Quantiles are built from the observations in 
+the training set. We take the observation points that belong to the same leaf than the input and we build a 
+distribution from those points. See figure for explanation:
+
+\includegraphics[width=0.4\textwidth]{quantile_random_forest}
+
 For a detailed discussion on quantile regression forests, see
 \cite{meinshausen_quantile_2006}.
-References:
-         https://stat.ethz.ch/~nicolai/quantregforests.pdf
-         http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
-         https://scikit-garden.github.io/examples/QuantileRegressionForests/
-         https://github.com/dfagnan/QuantileRandomForestRegressor/blob/master/QuantileRandomForestRegressor_v2.py
-         http://scikit-learn.org/stable/auto_examples/tree/plot_unveil_tree_structure.html
 
 \subsection{Gradient Boosted Tree}
 
@@ -161,15 +160,6 @@ in order to determine the quantiles of the function. We need to run a model per 
 The main problem with this approach is that since quantiles are calculated separately, 
 we can have quantile crossing: non monotonicity of the predicted
 CDF. In order to solve that, we will apply the technique from.
-
-References for xgboost modified:
-    https://medium.com/bigdatarepublic/regression-prediction-intervals-with-xgboost-428e0a018b
-
-references for non crossed:
-    https://arxiv.org/pdf/0704.3649.pdf
-    http://www.mit.edu/~vchern/curves-final2.pdf
-    https://www.nr.no/~thordis/files/Frei2012.pdf
-    https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA7880
 
 As an illustration of the concept (for a detailed discussion of
 quantile regression, refer to \cite{koenker_quantile_2005}), given a
