@@ -113,18 +113,44 @@ distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
 
 \section{Data description and experimental design}
 
-\subsection{Data Input}
+\subsection{Training Data}
 
-We will use as inputs for our regressor:
+In 20 pollution stations in Madrid, we have an almost complete hourly record of the last 5 years of:
 \begin{itemize}
-  \item the last 166 values
+  \item the levels of NO2 and O3
   \item calendar variables that represent the status of the day: bank holiday, laboral, type of holiday ...
-\end{itemize}
+  \item weather data: Precipitation, Temperature, Humidity, Wind
+  \item ECMWF numerical pollution prediction
+\end{itemize} 
 
 \subsection{Feature Preprocessing}
 
-We will extract the seasonality of the data through a Fourier Transform and we will compress the 
-data in the holidays variable. We will select the last 166 values as the inputs of our regressor.
+\subsubsection{Calendar Fields Summary}
+
+We will create 2 variables: one which indicates the day has a positive effect on pollution and 
+another one for negative effect. We use a linear regression to predict the NO2 value only from the calendar variables.
+As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
+sign of the coefficient applied to that feature:
+
+Then we create the 2 new variables as the sum of the positive features and the sum of the negative features respectively.
+
+\subsubsection{Seasonality Extraction}
+
+We extract the 6 main factors from the Fourier Transform of the signal. The chart displays the absolute value of
+the Fourier components of the time series:
+
+As we can see there are some dominant frequencies that show the time series has a strong seasonality. The 6 main 
+frequencies are:
+
+
+Therefore, we will create as input the output of periodic functions (cos) whose frequency is equal to the ones found 
+above. This would enable the machine learning model learn the seasonality of our time series.
+
+\subsubsection{Previous Values}
+
+As with any forecast technique based on machine learning, we add previous values to improve the accuracy 
+of the analysis. Based on the seasonal analysis, we see it's interesting to add a week of values. We will not 
+add more to keep a reasonable number of features as input.
 
 \subsection{k-Neighbors}
 
@@ -134,7 +160,7 @@ This algorithm is based on the standard k-Neighbor, where instead of aggregating
 k nearest points to the input (by taking the mean or median for example), it builds a distribution 
 from those neighbors.
 
-We need to find an optimal number k for our model. We will use the CRPS of the prodeicted distribution
+We need to find an optimal number k for our model. We will use the CRPS of the predicted distribution
 to get the best k. As you can see in the chart, 50 seems to be the optimal 
 number of neighbor.
 
@@ -142,9 +168,9 @@ number of neighbor.
 
 \subsection{Quantile Random Forest}
 
-We will use the quantile random forest as described in . Quantiles are built from the observations in 
-the training set. We take the observation points that belong to the same leaf than the input and we build a 
-distribution from those points. See figure for explanation:
+We will use the quantile random forest as described in \cite{randomforestdesc}. Quantiles are built 
+from the observations in the training set. We take the observation points that belong to the 
+same leaf than the input and we build a distribution from those points. See figure for explanation:
 
 \includegraphics[width=0.4\textwidth]{quantile_random_forest}
 
@@ -154,16 +180,13 @@ For a detailed discussion on quantile regression forests, see
 \subsection{Gradient Boosted Tree}
 
 Gradient Boosted Trees is a technique that consist on growing trees based on the compromise 
-of a cost function and a regularization functions. This cost function is usually used to get 
+of a cost function and a regularization functions. This cost function is usually used to forecast 
 the mean of the signal. But we are modifying the cost function 
-in order to determine the quantiles of the function. We need to run a model per quantile. 
-The main problem with this approach is that since quantiles are calculated separately, 
-we can have quantile crossing: non monotonicity of the predicted
-CDF. In order to solve that, we will apply the technique from.
+in order to forecast the quantile of the function. 
 
-As an illustration of the concept (for a detailed discussion of
-quantile regression, refer to \cite{koenker_quantile_2005}), given a
-set of vectors $(x_i, y_i)$, in point forecasting we are usually
+s an illustration of the concept (for a detailed discussion of 
+quantile regression, refer to \cite{koenker_quantile_2005}), given a 
+set of vectors $(x_i, y_i)$, in point forecasting we are usually 
 interested in what prediction $\hat y(x) = \alpha_0 + \alpha_1 x$
 minimizes the mean squared error,
 \begin{equation}
@@ -201,6 +224,13 @@ where
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
 median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 
+By forecasting different quantiles, we
+can forecast the CDF of the time series. 
+The main drawback is that we need to build a model per quantile. And since quantiles are calculated separately, 
+we can have quantile crossing, i.e. the non monotonicity of the predicted CDF. 
+
+In order to solve that, we will apply the technique from . This chart shows the predicted 10 and 90 
+percentiles of the first 100 values.
 
 \label{sec:mm}
 
@@ -222,16 +252,44 @@ median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 \subsection{Experimental design}
 \label{sec:experimental-design}
 
-\subsection{Evaluation of probabilistic forecasts}
-\label{sec:eval-prob-forec}
+We will train the models with data prior to 2017 and we will test our models with 2017 data. We will always test with 
+predictions done at 10:00, as this is the time the forecast will be done and the alert will be decided or not.
 
+Also, we will create different models for each horizon (how many hours in advance we do the forecast)
+
+\subsection{Evaluation of probabilistic forecasts}
+
+\subsubsection{Variance of the Time series per hour}
+
+The time series have very different variance for each hour of the day. This is important when we evaluate our model, since
+we re always forecasting at 10:00.
+
+\subsubsection{Metrics}
+
+We will evaluate the 50 percentile through the RMSE, MAE, Bias and Corr and the whole forecasted CDF through the CRPS.
+
+\subsubsection{CRPS}
+\label{sec:eval-extr-value}
+
+The CRPS measures the accuracy of a probabilistic forecast. 
 
 \subsection{Evaluation of alert forecasting}
 \label{sec:eval-extr-value}
 
+The alert forecasting is a classifier problem where we evaluate if the 
+
+\subsubsection{Alert Protocol}
+Put image from el pais.
+
+\subsubsection{Training data}
+\label{sec:eval-extr-value}
+
+We have few alerts in the last 5 years, so it is difficult to evaluate meaningfully the alert prediction.
 
 \section{Results and discussion}
 \label{sec:results}
+
+
 
 
 \subsection{Reference models}
@@ -287,7 +345,7 @@ activation of the air quality protocol.
 
 \section*{References}
 
-\bibliography{refs_nourl}
+\bibliography{refs}
 
 \end{document} 
 %%% Local Variables:
