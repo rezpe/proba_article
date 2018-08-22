@@ -132,6 +132,8 @@ another one for negative effect. We use a linear regression to predict the NO2 v
 As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
 sign of the coefficient applied to that feature:
 
+\includegraphics[width=0.4\textwidth]{calweights}
+
 Then we create the 2 new variables as the sum of the positive features and the sum of the negative features respectively.
 
 \subsubsection{Seasonality Extraction}
@@ -139,12 +141,25 @@ Then we create the 2 new variables as the sum of the positive features and the s
 We extract the 6 main factors from the Fourier Transform of the signal. The chart displays the absolute value of
 the Fourier components of the time series:
 
-As we can see there are some dominant frequencies that show the time series has a strong seasonality. The 6 main 
+\includegraphics[width=0.4\textwidth]{decomposition}
+
+If we zoom on the first 3000 components:
+
+\includegraphics[width=0.4\textwidth]{decompositionzoom}
+
+As we can see there are some dominant frequencies that show the time series has a strong seasonality. The 5 main 
 frequencies are:
 
+\begin{itemize}
+  \item Every 12 hour Seasonality
+  \item Yearly Seasonality
+  \item Daily Seasonality
+  \item Every 4 year seasonality
+  \item Weekly Seasonality
+\end{itemize} 
 
 Therefore, we will create as input the output of periodic functions (cos) whose frequency is equal to the ones found 
-above. This would enable the machine learning model learn the seasonality of our time series.
+above. This will enable the machine learning model learn the seasonality of our time series.
 
 \subsubsection{Previous Values}
 
@@ -279,7 +294,19 @@ The CRPS measures the accuracy of a probabilistic forecast.
 The alert forecasting is a classifier problem where we evaluate if the 
 
 \subsubsection{Alert Protocol}
-Put image from el pais.
+
+The Madrid region is divided into zones and each zone contains pollution stations that track the levels
+of pollutants.
+
+There are 3 levels of alert based on the levels of NO2:
+\begin{itemize}
+  \item Prewarning (More than 180 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
+  consecutive hours in 3 stations on any zone.
+  \item Warning (More than 200 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
+  consecutive hours in 3 stations on any zone.
+  \item Alert (More than 400 $\frac{\mu gr}{m^3}$ ): 3 consecutive hours on 3 stations in the same zone OR 2 
+  consecutive hours in zone 4. 
+\end{itemize} 
 
 \subsubsection{Training data}
 \label{sec:eval-extr-value}
