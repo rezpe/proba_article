@@ -115,6 +115,12 @@ distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
 
 \subsection{Training Data}
 
+There are 20 pollution stations around the city and they are organized in different
+zones as you can see in the picture below:
+
+\includegraphics[width=0.4\textwidth]{zonas_madrid}
+
+
 In 20 pollution stations in Madrid, we have an almost complete hourly record of the last 5 years of:
 \begin{itemize}
   \item the levels of NO2 and O3
@@ -263,6 +269,14 @@ percentiles of the first 100 values.
 \subsection{ECMWF numerical pollution prediction}
 \label{sec:ecmwf-numer-poll}
 
+The European Centre for Medium-Range Weather Forecasts implements the Copernicus Atmosphere Monitoring Service.
+This service provides CAMS delivers a saily production of near-real-time European air quality analyses and forecasts 
+with a multi-model ensemble system. 
+As you can see in the picture, the scope of the forecast is european and does not have the needed granularity to forecast 
+the levels of NO2 in a station.
+
+
+\includegraphics[width=0.4\textwidth]{camspoints}
 
 \subsection{Experimental design}
 \label{sec:experimental-design}
