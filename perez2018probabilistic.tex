@@ -118,12 +118,21 @@ distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
 There are 20 pollution stations around the city and they are organized in different
 zones as you can see in the picture below:
 
-\includegraphics[width=0.4\textwidth]{zonas_madrid}
+\begin{figure}
+  \caption{Madrid Pollution Stations and Zones.}
+  \centering
+      \includegraphics[width=0.4\textwidth]{zonas_madrid}
+\end{figure}
+
+All of the 24 stations of Madrid’s monitoring system capture hourly data for NO2. 
+They are spatially distributed according to European regulations and are classified into three types: 
+background stations, suburban stations and traffic stations. In those stations, we have an almost complete 
+hourly record of the last 5 years of the levels of NO2 and O3.
 
 
-In 20 pollution stations in Madrid, we have an almost complete hourly record of the last 5 years of:
 \begin{itemize}
-  \item the levels of NO2 and O3
+  \item NO2 past levels
+  \item O3 past levels
   \item calendar variables that represent the status of the day: bank holiday, laboral, type of holiday ...
   \item weather data: Precipitation, Temperature, Humidity, Wind
   \item ECMWF numerical pollution prediction
@@ -193,7 +202,12 @@ We will use the quantile random forest as described in \cite{randomforestdesc}. 
 from the observations in the training set. We take the observation points that belong to the 
 same leaf than the input and we build a distribution from those points. See figure for explanation:
 
-\includegraphics[width=0.4\textwidth]{quantile_random_forest}
+\begin{figure}
+  \caption{Random Forest Steps}
+  \centering
+  \includegraphics[width=0.4\textwidth]{quantile_random_forest}
+\end{figure}
+
 
 For a detailed discussion on quantile regression forests, see
 \cite{meinshausen_quantile_2006}.
@@ -255,10 +269,6 @@ percentiles of the first 100 values.
 
 \label{sec:mm}
 
-\subsection{Protocol for high \no concentration episodes}
-\label{sec:madr-prot-high}
-
-
 \subsection{Nitrogen dioxide data}
 \label{sec:no2}
 
@@ -293,6 +303,12 @@ Also, we will create different models for each horizon (how many hours in advanc
 The time series have very different variance for each hour of the day. This is important when we evaluate our model, since
 we re always forecasting at 10:00.
 
+\begin{figure}
+  \caption{Variance of NO2 per hour}
+  \centering
+      \includegraphics[width=0.4\textwidth]{variance}
+\end{figure}
+
 \subsubsection{Metrics}
 
 We will evaluate the 50 percentile through the RMSE, MAE, Bias and Corr and the whole forecasted CDF through the CRPS.
@@ -302,36 +318,8 @@ We will evaluate the 50 percentile through the RMSE, MAE, Bias and Corr and the 
 
 The CRPS measures the accuracy of a probabilistic forecast. 
 
-\subsection{Evaluation of alert forecasting}
-\label{sec:eval-extr-value}
-
-The alert forecasting is a classifier problem where we evaluate if the 
-
-\subsubsection{Alert Protocol}
-
-The Madrid region is divided into zones and each zone contains pollution stations that track the levels
-of pollutants.
-
-There are 3 levels of alert based on the levels of NO2:
-\begin{itemize}
-  \item Prewarning (More than 180 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
-  consecutive hours in 3 stations on any zone.
-  \item Warning (More than 200 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
-  consecutive hours in 3 stations on any zone.
-  \item Alert (More than 400 $\frac{\mu gr}{m^3}$ ): 3 consecutive hours on 3 stations in the same zone OR 2 
-  consecutive hours in zone 4. 
-\end{itemize} 
-
-\subsubsection{Training data}
-\label{sec:eval-extr-value}
-
-We have few alerts in the last 5 years, so it is difficult to evaluate meaningfully the alert prediction.
-
 \section{Results and discussion}
 \label{sec:results}
-
-
-
 
 \subsection{Reference models}
 \label{sec:deterministic}
@@ -343,33 +331,45 @@ predictions of \no concentrations.
 % latex table generated in R 3.2.2 by xtable 1.7-4 package
 % Thu Mar 31 18:48:22 2016
 \begin{table}[tbp]
-\caption{\label{tab:determ}Point forecast error measures for reference
-models (persistence, linear regression, random forests and median of
-the probabilistic model (QRF).}
+\caption{\label{tab:determ}CRPS Error for the different methods at different
+horizons 
+}
   \centering
 \begin{tabular}{rrrrr}
   \toprule
- & RMSE & MAE & Bias & Corr \\ 
+ horizon & Xarima & KNN & RF & XGB \\ 
   \midrule
-  Persistence & 13.47 & 9.23 & 0.04 & 0.88 \\ 
-  LR   & 11.51 & 8.16 & -1.62 & 0.91 \\ 
-  RF   & 11.27 & 7.89 & -2.14 & 0.92 \\
-  Q50  & 11.30 & 7.63 & -0.27 & 0.91 \\ 
+  1 & 5.88 & 9.30 & 7.01 & 7.92 \\ 
+12 & 14.92 & 20.22 & 18.02 & 16.04 \\ 
+13 & 14.55 & 16.91 & 15.41 & 13.96 \\ 
+14 & 12.95 & 14.62 & 13.86 & 12.24 \\ 
+20 & 6.82 & 8.79 & 8.57 & 10.04 \\ 
+37 & 15.29 & 23.20 & 20.91 & 18.42 \\ 
+45 & 8.50 & 9.69 & 8.78 & 9.14 \\ 
+55 & 7.51 & 12.11 & 11.58 & 16.59 \\ 
    \bottomrule
 \end{tabular}
 \end{table}
 
-Table \ref{tab:determ} shows the values of the root mean squared error
-(RMSE), mean average error (MAE), bias and correlation for the
-aforementioned reference models and the median forecast by the
-probabilistic model. As we can see, the median-based model Q50 behaves
-well in general compared to the other models, being especially good in
-terms of MAE and bias. This might be related to the median being more
-robust than the mean in the presence of outliers.
+\begin{figure}
+  \caption{RMSE Error per horizon and Method}
+  \centering
+      \includegraphics[width=0.4\textwidth]{results/rmse}
+\end{figure}
 
-However, in this framework, we are, as a matter of fact, interested in
-those outliers, as they precisely are the values which trigger the
-activation of the air quality protocol.
+\begin{figure}
+  \caption{MAE Error per horizon and Method}
+  \centering
+      \includegraphics[width=0.4\textwidth]{results/mae}
+\end{figure}
+
+\begin{figure}
+  \caption{CRPS Error per horizon and Method}
+  \centering
+      \includegraphics[width=0.4\textwidth]{results/crps}
+\end{figure}
+
+Table \ref{tab:determ} shows Arima outperforms the other Machine Learning algorithms
 
 
 \subsection{Probabilistic forecasting of extreme values}

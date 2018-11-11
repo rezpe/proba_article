@@ -1,0 +1,31 @@
+\subsection{Evaluation of alert forecasting}
+\label{sec:eval-extr-value}
+
+The alert forecasting is a classifier problem where we evaluate if the levels of NO2 are above
+
+\subsubsection{Alert Protocol}
+
+The Madrid region is divided into zones and each zone contains pollution stations that track the levels
+of pollutants.
+
+There are 3 levels of alert based on the levels of NO2:
+\begin{itemize}
+  \item Prewarning (More than 180 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
+  consecutive hours in 3 stations on any zone.
+  \item Warning (More than 200 $\frac{\mu gr}{m^3}$ ): 2 consecutive hours on 2 stations in the same zone OR 3 
+  consecutive hours in 3 stations on any zone.
+  \item Alert (More than 400 $\frac{\mu gr}{m^3}$ ): 3 consecutive hours on 3 stations in the same zone OR 2 
+  consecutive hours in zone 4. 
+\end{itemize} 
+
+\subsubsection{Training data}
+\label{sec:eval-extr-value}
+
+We have few alerts in the last 5 years, so it is difficult to evaluate meaningfully the alert prediction.
+
+\subsection{Probabilistic forecasting of extreme values}
+\label{sec:probabilistic}
+
+
+\subsection{Forecasting the probability of alerts}
+\label{sec:alertProb2}
