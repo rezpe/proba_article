@@ -45,7 +45,7 @@
 \end{abstract}
 
 \begin{keyword}
-probabilistic forecasting \sep air quality \sep quantile regression
+probabilistic f orecasting \sep air quality \sep quantile regression
 \sep nitrogen dioxide \sep Madrid
 \end{keyword}
 
@@ -147,7 +147,12 @@ another one for negative effect. We use a linear regression to predict the NO2 v
 As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
 sign of the coefficient applied to that feature:
 
-\includegraphics[width=0.4\textwidth]{calweights}
+\begin{figure}
+  \caption{Weights of the calendar variables.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{calweights}
+\end{figure}
+
 
 Then we create the 2 new variables as the sum of the positive features and the sum of the negative features respectively.
 
@@ -156,11 +161,21 @@ Then we create the 2 new variables as the sum of the positive features and the s
 We extract the 6 main factors from the Fourier Transform of the signal. The chart displays the absolute value of
 the Fourier components of the time series:
 
-\includegraphics[width=0.4\textwidth]{decomposition}
+\begin{figure}
+  \caption{Total Fourier Decomposition of the signal.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{decomposition}
+\end{figure}
+
 
 If we zoom on the first 3000 components:
 
-\includegraphics[width=0.4\textwidth]{decompositionzoom}
+\begin{figure}
+  \caption{Zoom on the first Components of the Fourier Decomposition.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{decompositionzoom}
+\end{figure}
+
 
 As we can see there are some dominant frequencies that show the time series has a strong seasonality. The 5 main 
 frequencies are:
@@ -194,7 +209,11 @@ We need to find an optimal number k for our model. We will use the CRPS of the p
 to get the best k. As you can see in the chart, 50 seems to be the optimal 
 number of neighbor.
 
-\includegraphics[width=0.4\textwidth]{kneighbor_crps}
+\begin{figure}
+  \caption{CRPS of the kNeighbors per number of neighbors.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{kneighbor_crps}
+\end{figure}
 
 \subsection{Quantile Random Forest}
 
@@ -285,8 +304,12 @@ with a multi-model ensemble system.
 As you can see in the picture, the scope of the forecast is european and does not have the needed granularity to forecast 
 the levels of NO2 in a station.
 
+\begin{figure}
+  \caption{Location of the points with predicted pollution from CAMS.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{camspoints}
+\end{figure}
 
-\includegraphics[width=0.4\textwidth]{camspoints}
 
 \subsection{Experimental design}
 \label{sec:experimental-design}
