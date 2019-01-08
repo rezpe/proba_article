@@ -11,7 +11,5 @@ References for xgboost modified:
     https://medium.com/bigdatarepublic/regression-prediction-intervals-with-xgboost-428e0a018b
 
 references for non crossed:
-    https://arxiv.org/pdf/0704.3649.pdf
     http://www.mit.edu/~vchern/curves-final2.pdf
     https://www.nr.no/~thordis/files/Frei2012.pdf
-    https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA7880
