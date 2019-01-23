@@ -146,6 +146,56 @@ the variance is, as we can see in figure \ref{figure:variance}.
 \label{figure:variance}
 \end{figure}
 
+In order to analyze the seasonality of the signal, we extract the 6 main factors 
+from the Fourier Transform. The chart displays the absolute value of
+the Fourier components of the time series:
+
+\begin{figure}
+  \caption{Total Fourier Decomposition of the signal.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{decomposition}
+\end{figure}
+
+If we zoom on the first 3000 components:
+
+\begin{figure}
+  \caption{Zoom on the first Components of the Fourier Decomposition.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{decompositionzoom}
+\end{figure}
+
+As we can see there are some dominant frequencies that show the time series has a 
+strong seasonality. The 5 main frequencies are:
+
+\begin{itemize}
+  \item Every 12 hour Seasonality
+  \item Yearly Seasonality
+  \item Daily Seasonality
+  \item Every 4 year seasonality
+  \item Weekly Seasonality
+\end{itemize} 
+
+Therefore, we will create as input the output of periodic functions (cos) whose frequency is equal to the ones found 
+above. This will enable the machine learning model learn the seasonality of our time series.
+
+As with any forecast technique based on machine learning, we add previous values to improve the accuracy 
+of the analysis. Based on the seasonal analysis, we see it's interesting to add a week of values. We will not 
+add more to keep a reasonable number of features as input.
+
+\subsection{$O_3$}
+
+The Diaz Aguirre station also recorded the levels of $O_3$. As we can see in figure \ref{figure:no2vso3},
+there seems to be a correlation between $NO_2$ levels and $O_3$.
+
+\begin{figure}
+  \caption{Levels of $O_3$ vs levels os $NO_2$}
+  \centering
+  \includegraphics[width=0.4\textwidth]{no2vso3}
+  \label{figure:no2vso3}
+\end{figure}
+
+We will also add lagged values of $O_3$ to our models.
+
 \subsection{ECMWF numerical pollution prediction}
 \label{sec:ecmwf-numer-poll}
 
@@ -162,19 +212,8 @@ the levels of NO2 in a station.
   \label{figure:camspoints}
 \end{figure}
 
-\subsection{$O_3$}
-
-The Diaz Aguirre station also recorded the levels of $O_3$. As we can see in figure \ref{figure:no2vso3},
-there seems to be a correlation between $NO_2$ levels and $O_3$.
-
-\begin{figure}
-  \caption{Levels of $O_3$ vs levels os $NO_2$}
-  \centering
-  \includegraphics[width=0.4\textwidth]{no2vso3}
-  \label{figure:no2vso3}
-\end{figure}
-
 \subsection{Calendar Variables}
+\label{sec:cal_data}
 
 As $NO_2$ levels seem to be linked to human activity, we will also flag the hours 
 belonging to a specific type of day. Days could be classified as:
@@ -184,18 +223,26 @@ belonging to a specific type of day. Days could be classified as:
   \item School holidays
 \end{itemize} 
 
+We will create 2 variables: one which indicates the day has a positive effect on pollution and 
+another one for negative effect. We use a linear regression to predict the NO2 value only from the calendar variables.
+As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
+sign of the coefficient applied to that feature:
+
+\begin{figure}
+  \caption{Weights of the calendar variables.}
+  \centering
+  \includegraphics[width=0.4\textwidth]{calweights}
+\end{figure}
+
+Then we will replace the calendar variables with 2 new variables as the sum of the positive 
+features and the sum of the negative features respectively.
+
 \subsection{Experimental design}
 \label{sec:experimental-design}
 
-First, we aligned all the hourly time series: $NO_2$, $O_3$, ECMWF in the same table. 
-Then we added the following columns:
-\begin{itemize}
-  \item Seasonal time series with the main periods of the $NO_2$ time series
-  \item lagged $NO_2$
-  \item lagged $O_3$
-  \item 2 calendar variables that summarized all the calendar columns
-\end{itemize} 
-The section \ref{sec:additional_data} provides more information.
+First, we aligned all the hourly time series: $NO_2$, $O_3$, ECMWF in the same table 
+and added the lagged values, a seasonal time series with the main periods of the $NO_2$ time series
+and the calendar variables as described in section \ref{sec:cal_data}.
 
 Once all this data is added, we will train the following probabilistic 
 models:
@@ -218,63 +265,7 @@ RMSE, MAE, Bias and Corr
 and the whole forecasted CDF through the CRPS. We will perform
 this evaluation for each of the horizons.
 
-\subsection{Additional Data}
-\label{sec:additional_data}
 
-\subsubsection{Calendar Fields Summary}
-
-We will create 2 variables: one which indicates the day has a positive effect on pollution and 
-another one for negative effect. We use a linear regression to predict the NO2 value only from the calendar variables.
-As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
-sign of the coefficient applied to that feature:
-
-\begin{figure}
-  \caption{Weights of the calendar variables.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{calweights}
-\end{figure}
-
-Then we will replace the calendar variables with 2 new variables as the sum of the positive 
-features and the sum of the negative features respectively.
-
-\subsubsection{Seasonality Extraction}
-
-We extract the 6 main factors from the Fourier Transform of the signal. The chart displays the absolute value of
-the Fourier components of the time series:
-
-\begin{figure}
-  \caption{Total Fourier Decomposition of the signal.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{decomposition}
-\end{figure}
-
-If we zoom on the first 3000 components:
-
-\begin{figure}
-  \caption{Zoom on the first Components of the Fourier Decomposition.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{decompositionzoom}
-\end{figure}
-
-As we can see there are some dominant frequencies that show the time series has a strong seasonality. The 5 main 
-frequencies are:
-
-\begin{itemize}
-  \item Every 12 hour Seasonality
-  \item Yearly Seasonality
-  \item Daily Seasonality
-  \item Every 4 year seasonality
-  \item Weekly Seasonality
-\end{itemize} 
-
-Therefore, we will create as input the output of periodic functions (cos) whose frequency is equal to the ones found 
-above. This will enable the machine learning model learn the seasonality of our time series.
-
-\subsubsection{Lagged $NO_2$ and $O_3$ values}
-
-As with any forecast technique based on machine learning, we add previous values to improve the accuracy 
-of the analysis. Based on the seasonal analysis, we see it's interesting to add a week of values. We will not 
-add more to keep a reasonable number of features as input.
 
 \subsection{Probabilistic Models}
 \label{sec:models}
@@ -309,6 +300,9 @@ belonging to that leaf as represented in figure \ref{figure:qrandom} .
 Then predictions are calculated by selecting the leafs corresponding to the input features and 
 building an histogram out of the target observations in those leafs. For more information refer to 
 \cite{quantregforests}.
+As we observed a high bias on our experiments, we decided to train a linear regressor
+which predicts the $NO_2$ values from the 50th quantile, and then apply this linear regression 
+to all the predicted quantiles. 
 
 \begin{figure}
   \centering
