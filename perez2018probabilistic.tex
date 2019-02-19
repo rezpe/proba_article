@@ -91,8 +91,7 @@ forecasting \cite{zhang_review_2014}, electric load forecasting
 examples and the list is not exhaustive). To our knowledge, despite
 its success in other areas, quantile regression has not been applied
 in the framework of air quality% , with the exception of
-% \cite{martinez-silva_forecasting_2016}
-.
+% \cite{martinez-silva_forecasting_2016}.
 
 Thus, as we can estimate an arbitrary quantile and forecast its
 values, we can also estimate the full conditional distribution, which
@@ -252,6 +251,15 @@ models with 2017 data. We will always test with
 predictions done at 10:00, as this is the time the 
 forecast will be done and the alert will be decided 
 or not.
+
+After forecasting the quantiles, we will fit those quantiles in a normal distribution.
+We have a low number of percentiles and we would like to get at least 100 percentiles.
+Fitting a normal distribution to those percentiles and then generating the 
+percentiles for that fitted distribution can generate much more percentiles 
+than the ones we originally had.
+Also as we do not have enough samples to estimate the upper tail of the distribution, 
+we believe
+fitting the distribution corrects for that and improves estimation for higher values.
 
 We will evaluate the 50 percentile through the 
 RMSE, MAE, Bias and Corr 
