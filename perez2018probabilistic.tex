@@ -118,10 +118,10 @@ They are spatially distributed according to European regulations.
 We can see the station distribution in figure \ref{figure:stations}.
 
 \begin{figure}
-  \caption{Madrid Pollution Stations and Zones.}
   \centering
       \includegraphics[width=0.4\textwidth]{zonas_madrid}
       \label{figure:stations}
+  \caption{Madrid Pollution Stations and Zones.}
 \end{figure} 
 
 They are classified into 
@@ -137,35 +137,17 @@ higher values are located in two peaks around the morning
 and evening (with highest average value at 19h) while the 
 nightly hours (from 00h to 05h) have lower average concentrations. 
 Not only are the values higher at those hours, but also
-the variance is, as we can see in figure \ref{figure:variance}. 
-
+the variance is, as we can see in figure \ref{figure:variance} . 
+ 
 \begin{figure}
-  \caption{Variance of NO2 per hour}
   \centering
-      \includegraphics[width=0.4\textwidth]{variance}
+      \includegraphics[width=0.4\textwidth]{NO2Var}
+  \caption{Boxplot of NO2 per hour}
 \label{figure:variance}
 \end{figure}
 
-In order to analyze the seasonality of the signal, we extract the 6 main factors 
-from the Fourier Transform. The chart displays the absolute value of
-the Fourier components of the time series:
-
-\begin{figure}
-  \caption{Total Fourier Decomposition of the signal.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{decomposition}
-\end{figure}
-
-If we zoom on the first 3000 components:
-
-\begin{figure}
-  \caption{Zoom on the first Components of the Fourier Decomposition.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{decompositionzoom}
-\end{figure}
-
-As we can see there are some dominant frequencies that show the time series has a 
-strong seasonality. The 5 main frequencies are:
+In order to analyze the seasonality of the signal, we extract the 5 main factors 
+from the Fourier Transform. Those can be seen clearly from the first 3000 components:
 
 \begin{itemize}
   \item Every 12 hour Seasonality
@@ -188,10 +170,10 @@ The Diaz Aguirre station also recorded the levels of $O_3$. As we can see in fig
 there seems to be a correlation between $NO_2$ levels and $O_3$.
 
 \begin{figure}
-  \caption{Levels of $O_3$ vs levels os $NO_2$}
   \centering
   \includegraphics[width=0.4\textwidth]{no2vso3}
   \label{figure:no2vso3}
+  \caption{Levels of $O_3$ vs levels os $NO_2$}
 \end{figure}
 
 We will also add lagged values of $O_3$ to our models.
@@ -206,10 +188,10 @@ As you can see in the figure \ref{figure:camspoints}, the scope of the forecast 
 the levels of NO2 in a station.
 
 \begin{figure}
-  \caption{Location of the points with predicted pollution from CAMS.}
   \centering
   \includegraphics[width=0.4\textwidth]{camspoints}
   \label{figure:camspoints}
+  \caption{Location of the points with predicted pollution from CAMS.}
 \end{figure}
 
 \subsection{Calendar Variables}
@@ -225,19 +207,20 @@ belonging to a specific type of day. Days could be classified as:
 
 We will create 2 variables: one which indicates the day has a positive effect on pollution and 
 another one for negative effect. We use a linear regression to predict the NO2 value only from the calendar variables.
-As we can see in the chart, some variables have a positive effect and others a negative effect, based on the
+As we can see in the figure \ref{figure:fourier}, some variables have a positive effect and others a negative effect, based on the
 sign of the coefficient applied to that feature:
 
 \begin{figure}
-  \caption{Weights of the calendar variables.}
   \centering
   \includegraphics[width=0.4\textwidth]{calweights}
+  \caption{Weights of the calendar variables.}
+  \label{figure:fourier}
 \end{figure}
 
 Then we will replace the calendar variables with 2 new variables as the sum of the positive 
 features and the sum of the negative features respectively.
 
-\subsection{Experimental design}
+\subsection{Experimental Design}
 \label{sec:experimental-design}
 
 First, we aligned all the hourly time series: $NO_2$, $O_3$, ECMWF in the same table 
@@ -252,6 +235,16 @@ models:
   \item Quantile XG Boost
   \item Probabilistic Xarima
 \end{itemize} 
+
+The figure \ref{figure:dataflow} shows the data flow in the experimental design.  
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.2\textwidth]{diagrams/flow}
+  \caption{Data flow of the experiments}
+  \label{figure:dataflow}
+\end{figure}
+
 The section \ref{sec:models} provides more information on the probabilistic models.
 
 We will train the models with data prior to 2017 and we will test our 
@@ -281,15 +274,12 @@ the targets of the
 $k$ nearest points to the input, it builds a distribution 
 from those neighbors.
 
-We need to find an optimal number k for our model. We will use the CRPS of the predicted distribution
-to get the best k. As you can see in the chart, 50 seems to be the optimal 
-number of neighbors.
+Also we are approximating the obtained percentiles to the percentiles of a lognorm function. 
+This allows us to provide information to the algorythm on the expected shape of the distribution.
 
-\begin{figure}
-  \caption{CRPS of the $k$ nearest neighbors per number of neighbors.}
-  \centering
-  \includegraphics[width=0.4\textwidth]{kneighbor_crps}
-\end{figure}
+We found the best $k$ to be 250 after testing several values of $k$ and calculating 
+the rmse for a simple regression. 
+
 
 \subsubsection{Quantile Random Forest}
 
@@ -300,9 +290,13 @@ belonging to that leaf as represented in figure \ref{figure:qrandom} .
 Then predictions are calculated by selecting the leafs corresponding to the input features and 
 building an histogram out of the target observations in those leafs. For more information refer to 
 \cite{quantregforests}.
+
 As we observed a high bias on our experiments, we decided to train a linear regressor
 which predicts the $NO_2$ values from the 50th quantile, and then apply this linear regression 
 to all the predicted quantiles. 
+
+Also we are approximating the obtained percentiles to the percentiles of a lognorm function. 
+This allows us to provide information to the algorythm on the expected shape of the distribution.
 
 \begin{figure}
   \centering
@@ -385,10 +379,11 @@ predictions of \no concentrations.
 % latex table generated in R 3.2.2 by xtable 1.7-4 package
 % Thu Mar 31 18:48:22 2016
 \begin{table}[tbp]
-\caption{\label{tab:determ}CRPS Error for the different methods at different
-horizons 
-}
   \centering
+  \label{tab:determ}
+  \caption{CRPS Error for the different methods at different
+    horizons 
+    }
   \begin{tabular}{lrrrr}
     \toprule
     method &  Arima &   KNN &    RF &   XGB \\
@@ -404,28 +399,29 @@ horizons
     55      &   7.51 & 12.11 & 12.13 & 16.59 \\
     \bottomrule
     \end{tabular}
+  
 \end{table}
 
 
 \begin{figure}
-  \caption{RMSE Error per horizon and Method}
   \centering
       \includegraphics[width=0.4\textwidth]{results/rmse}
+  \caption{RMSE Error per horizon and Method}
 \end{figure}
 
 \begin{figure}
-  \caption{MAE Error per horizon and Method}
   \centering
       \includegraphics[width=0.4\textwidth]{results/mae}
+  \caption{MAE Error per horizon and Method}
 \end{figure}
 
 \begin{figure}
-  \caption{CRPS Error per horizon and Method}
   \centering
       \includegraphics[width=0.4\textwidth]{results/crps}
+  \caption{CRPS Error per horizon and Method}
 \end{figure}
 
-Table \ref{tab:determ} shows Arima outperforms the other Machine Learning algorithms
+Table \ref{tab:determ} shows Arima outperforms the other Machine Learning algorithms.
 
 \subsection{Probabilistic forecasting of extreme values}
 \label{sec:probabilistic}
