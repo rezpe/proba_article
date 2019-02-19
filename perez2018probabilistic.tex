@@ -25,7 +25,7 @@
 
 \title{A comparison of probabilistic forecasting methods for extreme \no pollution episodes}
 
-\author{Sebasti\'an P\'erez Vasseur}
+\author{Sebasti\'an P\'erez Vasseur} 
 \address{Artificial Intelligence Department\\Universidad Nacional de
   Educaci\'on a Distancia --- UNED\\c/ Juan del Rosal, 16, Madrid, Spain}
 
@@ -127,7 +127,14 @@ They are classified into
 three types: background stations, suburban stations 
 and traffic stations. 
 
-For this study, we have selected the Diaz Aguirre station .
+For this study, we have selected the Diaz Aguirre station.
+
+After analysis of the $NO_2$ values, we have identified them 
+as belonging to a lognormal distribution and therefore we transformed to 
+the log of the values. This has 2 positive effects: the tail of a normal distribution 
+is not as long as for the lognom (so we will have better quantile estimations) and 
+it helps with linear models like the linear quantile regression.
+
 The time series for this station consists of hourly
 measured values of the airborne concentrations of NO2
 from 01/01/2000 to 30/11/2017. These values exhibit a clear intraday 
@@ -267,44 +274,37 @@ and the whole forecasted CDF through the CRPS. We will perform
 this evaluation for each of the horizons.
 
 
-
 \subsection{Probabilistic Models}
 \label{sec:models}
 
-\subsubsection{Xarima}
-
-\subsubsection{$k$ nearest neighbors}
-
-We will use the probabilistic $k$ nearest neighbors algorithm as described in  
-\cite{quantileknnmangalova}. 
-This algorithm is based on the standard $k$ nearest neighbor, where instead of calculating the mean of 
-the targets of the
-$k$ nearest points to the input, it builds a distribution 
-from those neighbors.
-
-Also we are approximating the obtained percentiles to the percentiles of a lognorm function. 
-This allows us to provide information to the algorythm on the expected shape of the distribution.
-
-We found the best $k$ to be 250 after testing several values of $k$ and calculating 
-the rmse for a simple regression. 
-
+We will compare the following probabilistic models:
+\begin{itemize}
+  \item Quantile Random Forest
+  \item $k$ Nearest Neighbors
+  \item Linear Quantile regression
+  \item Quantile Gradient Boosting
+  \item Arima
+\end{itemize}
 
 \subsubsection{Quantile Random Forest}
 
 Quantile random forests create probabilistic predictions out of 
-the original observations. It works like a standard random forest, but then in each tree,
-leafs do not contain a single value as a prediction but the target observations from the training set 
-belonging to that leaf as represented in figure \ref{figure:qrandom} . 
-Then predictions are calculated by selecting the leafs corresponding to the input features and 
-building an histogram out of the target observations in those leafs. For more information refer to 
+the original observations. It works like the usual random forest, 
+except in each tree,
+leafs do not contain a single value as a prediction but the target observations 
+from the training set 
+belonging to that leaf (see figure \ref{figure:qrandom}) . 
+
+Then predictions are calculated by selecting the leafs in each tree
+corresponding to the input features and combining the weighted 
+histograms in each tree out of the target observations in those leafs. 
+For more information refer to 
 \cite{quantregforests}.
 
-As we observed a high bias on our experiments, we decided to train a linear regressor
-which predicts the $NO_2$ values from the 50th quantile, and then apply this linear regression 
+We decided to train a linear regressor
+which predicts the $NO_2$ values from the original features and the 50th quantile, 
+and then apply this linear regression 
 to all the predicted quantiles. 
-
-Also we are approximating the obtained percentiles to the percentiles of a lognorm function. 
-This allows us to provide information to the algorythm on the expected shape of the distribution.
 
 \begin{figure}
   \centering
@@ -313,13 +313,26 @@ This allows us to provide information to the algorythm on the expected shape of 
   \label{figure:qrandom}
 \end{figure}
 
-\subsubsection{Gradient Boosted Tree}
+\subsubsection{$k$ Nearest Neighbors}
 
-Tree Boosting \cite{gradientboost} is a widely used technique for machine learning 
-that consist on growing trees based on the compromise 
-of a cost function and a regularization function. This cost function is usually used to forecast 
-the mean of the signal. However we can modify this cost function to forecast a 
-percentile of the signal (for a detailed discussion of 
+We will use the probabilistic $k$ nearest neighbors algorithm as described in  
+\cite{quantileknnmangalova}. 
+This algorithm is based on the standard $k$ nearest neighbor, 
+where instead of calculating the mean of 
+the targets of the
+$k$ nearest points to the input, it builds a distribution 
+from those neighbors.
+
+We found the best $k$ to be 50 after testing several values of $k$ and calculating 
+the rmse for a simple regression.
+
+We also trained a linear regressor from the original features and the 50th quantile, 
+and applied it to all the predicted quantiles. 
+
+\subsubsection{Linear Quantile regression}
+
+We can apply linear regression with a modified cost function in order to 
+predict the quantiles of the target (for a detailed discussion of 
 quantile regression, refer to \cite{koenker_quantile_2005}). 
 
 Given a 
@@ -361,18 +374,25 @@ where
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
 median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 
-We will use the XGBoost algorythm \cite{xgb} since the running time is lower and we will change the cost 
-function by introducing additional parameters as stated in \cite{qxgb}. This will provide better 
-convergence for the gradient descent algorithm. We will use Grid Search with the CRPS metric 
-to find the best parameters for the boosted trees.
+We will train 10 models to predict the 10 deciles of the signal. As quantiles are 
+calculated separately, we have the risk of encountering quantile crossing.
+We will use the simple technique as explained in \cite{cross} to solve this problem.
 
-By forecasting different quantiles, we
-can forecast the CDF of the time series. 
-The main drawback is that we need to build a model per quantile. And since quantiles 
-are calculated separately, 
-we can have quantile crossing, i.e. the non monotonicity of the predicted CDF. 
+\subsubsection{Gradient Boosted Tree}
 
-In order to solve that, we will reorder the quantiles as explained in \cite{xgb}. 
+Tree Boosting \cite{gradientboost} is a widely used technique for machine learning 
+that consist on growing trees based on the compromise 
+of a cost function and a regularization function. This cost function is usually 
+used to forecast 
+the mean of the signal. We will modify the cost function (im a similar way as in 
+the quantile linear regression) to predict the quantiles of the target. 
+
+We will train 10 models to predict the 10 deciles of the signal and we will solve 
+ quantile crossing with the technique explained in \cite{cross}. We also trained a 
+ linear regressor from the original features and the 50th quantile, 
+and applied it to all the predicted quantiles. 
+
+\subsubsection{Arima}
 
 \section{Results and discussion}
 \label{sec:results}
@@ -384,50 +404,33 @@ In the first experiment, we used quantile regression to compute
 point-forecasts of the expected value (median) for one-day ahead
 predictions of \no concentrations.
 
-% latex table generated in R 3.2.2 by xtable 1.7-4 package
-% Thu Mar 31 18:48:22 2016
 \begin{table}[tbp]
   \centering
   \label{tab:determ}
   \caption{CRPS Error for the different methods at different
-    horizons 
+    horizons (GB = Gradient Boosting,
+    KNN = K Nearest Neighbor,
+    LQR = Linear Quantile Regression,
+    QRF = Quantile Random Forest)
     }
-  \begin{tabular}{lrrrr}
-    \toprule
-    method &  Arima &   KNN &    RF &   XGB \\
-    horizon &        &       &       &       \\
-    \midrule
-    1       &   5.88 &  9.30 &  6.97 &  7.92 \\
-    12      &  14.92 & 20.22 & 17.53 & 16.04 \\
-    13      &  14.55 & 16.91 & 14.75 & 13.96 \\
-    14      &  12.95 & 14.62 & 12.66 & 12.24 \\
-    20      &   6.82 &  8.79 &  8.85 & 10.04 \\
-    37      &  15.29 & 23.20 & 18.63 & 18.42 \\
-    45      &   8.50 &  9.69 &  9.11 &  9.14 \\
-    55      &   7.51 & 12.11 & 12.13 & 16.59 \\
-    \bottomrule
-    \end{tabular}
+    \begin{tabular}{lrrrrr}
+      \toprule
+      method &  Arima &    GB &   KNN &   LQR &    QRF \\
+      horizon &        &       &       &       &       \\
+      \midrule
+      1       &   6.18 &  7.27 & 11.67 &  7.23 &  7.70 \\
+      12      &  13.52 & 15.84 & 21.68 & 18.13 & 17.01 \\
+      13      &  12.83 & 14.53 & 20.24 & 15.44 & 15.05 \\
+      14      &  11.54 & 12.05 & 19.13 & 13.24 & 13.42 \\
+      20      &   7.11 &  6.79 & 14.08 &  7.36 &  7.42 \\
+      37      &  13.31 & 16.28 & 19.24 & 16.71 & 16.19 \\
+      45      &   9.01 &  6.96 & 12.48 &  7.90 &  8.69 \\
+      55      &   6.22 & 11.50 & 17.94 & 12.63 & 13.29 \\
+      \bottomrule
+      \end{tabular}
   
 \end{table}
 
-
-\begin{figure}
-  \centering
-      \includegraphics[width=0.4\textwidth]{results/rmse}
-  \caption{RMSE Error per horizon and Method}
-\end{figure}
-
-\begin{figure}
-  \centering
-      \includegraphics[width=0.4\textwidth]{results/mae}
-  \caption{MAE Error per horizon and Method}
-\end{figure}
-
-\begin{figure}
-  \centering
-      \includegraphics[width=0.4\textwidth]{results/crps}
-  \caption{CRPS Error per horizon and Method}
-\end{figure}
 
 Table \ref{tab:determ} shows Arima outperforms the other Machine Learning algorithms.
 

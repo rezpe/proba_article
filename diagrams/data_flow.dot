@@ -10,6 +10,7 @@ data[shape="box"  label="Original Data:
 
 a[shape="box"  label="Transform
 - Time transpolation
+- Log transformation
 - Merge
 - Lags
 - Detrend"]
@@ -20,8 +21,8 @@ c[shape="round" style="rounded" label="Test Set"]
 d[shape="round" label="Probabilistic Model"]
 
 quantforecast[shape="round" label="Quantiles Forecasting
-Fitting a Distribution
 Applying a linear regression
+Fitting of a Normal Distribution
 Adjusting the mean with the trend"]
 
 g[shape="round" style="rounded" label="Full PDF"]
