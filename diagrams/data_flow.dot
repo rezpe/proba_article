@@ -1,0 +1,40 @@
+digraph {
+
+rankdir="TB"
+graph [splines=ortho]
+
+data[shape="box"  label="Original Data:
+- NO2 and O3 hourly data
+- Calendar Variables
+- ECMWF Predictions"]
+
+a[shape="box"  label="Transform
+- Time transpolation
+- Merge
+- Lags
+- Detrend"]
+
+b[shape="round" style="rounded" label="Train Set"]
+c[shape="round" style="rounded" label="Test Set"]
+
+d[shape="round" label="Probabilistic Model"]
+
+quantforecast[shape="round" label="Quantiles Forecasting
+Fitting a Distribution
+Applying a linear regression
+Adjusting the mean with the trend"]
+
+g[shape="round" style="rounded" label="Full PDF"]
+h[shape="round"  label="Evaluate"]
+
+data -> a;
+a -> b;
+a -> c;
+b -> d;
+d -> quantforecast;
+c -> quantforecast;
+quantforecast -> g;
+g -> h;
+
+
+}
