@@ -90,8 +90,8 @@ forecasting \cite{zhang_review_2014}, electric load forecasting
 \cite{bjornar_bremnes_probabilistic_2004} (these references are just
 examples and the list is not exhaustive). To our knowledge, despite
 its success in other areas, quantile regression has not been applied
-in the framework of air quality% , with the exception of
-% \cite{martinez-silva_forecasting_2016}.
+in the framework of air quality , with the exception of
+ \cite{martinez-silva_forecasting_2016}.
 
 Thus, as we can estimate an arbitrary quantile and forecast its
 values, we can also estimate the full conditional distribution, which
@@ -143,7 +143,7 @@ higher values are located in two peaks around the morning
 and evening (with highest average value at 19h) while the 
 nightly hours (from 00h to 05h) have lower average concentrations. 
 Not only are the values higher at those hours, but also
-the variance is, as we can see in figure \ref{figure:variance} . 
+the variance is, as we can see in figure \ref{figure:variance}. 
  
 \begin{figure}
   \centering
@@ -236,11 +236,11 @@ and the calendar variables as described in section \ref{sec:cal_data}.
 Once all this data is added, we will train the following probabilistic 
 models:
 \begin{itemize}
-  \item $k$ Nearest Neighbors
   \item Quantile Random Forest
-  \item Quantile XG Boost
-  \item Probabilistic Xarima
-\end{itemize} 
+  \item $k$ Nearest Neighbors
+  \item Linear Quantile regression
+  \item Quantile Gradient Boosting
+\end{itemize}
 
 The figure \ref{figure:dataflow} shows the data flow in the experimental design.  
 
@@ -283,7 +283,6 @@ We will compare the following probabilistic models:
   \item $k$ Nearest Neighbors
   \item Linear Quantile regression
   \item Quantile Gradient Boosting
-  \item Arima
 \end{itemize}
 
 \subsubsection{Quantile Random Forest}
@@ -344,8 +343,8 @@ minimizes the mean squared error,
   E = \frac{1}{n} \sum^n_i \epsilon_i =
   \frac{1}{n} \sum^n_i [ y_i - (\alpha_0 + \alpha_1 x) ]^2.
 \end{equation}
-This prediction is the conditional sample mean of $y$ given $x$% , that
-% is, $\hat y(x) = \hat\alpha_0 + \hat\alpha_1 x$
+This prediction is the conditional sample mean of $y$ given $x$ , that
+ is, $\hat y(x) = \hat\alpha_0 + \hat\alpha_1 x$
 , or the location of the conditional distribution. But we could be
 interested in estimating the conditional median (i.e., the 0.5
 quantile) instead of the mean, in which case we should find the
@@ -392,8 +391,6 @@ We will train 10 models to predict the 10 deciles of the signal and we will solv
  linear regressor from the original features and the 50th quantile, 
 and applied it to all the predicted quantiles. 
 
-\subsubsection{Arima}
-
 \section{Results and discussion}
 \label{sec:results}
 
@@ -406,13 +403,21 @@ and applied it to all the predicted quantiles.
   \label{figure:errorGraph}
 \end{figure*}
 
+Figure \ref{figure:rel_sharp} shows the average reliability and sharpness of the 
+different methods across all the horizons. 
+As we can see, Random Forest and Kneighbors display a high bias that can be seen in the 
+sharpness curve. QLR results give a hint on why this is happening. It seems the relationship
+between the target and the input variable is highly linear, therefore models like Random 
+Forest and Kneighbors suffer from that. Gradient Boosting performs the best of all.
 
-\subsection{Reference models}
-\label{sec:deterministic}
 
-In the first experiment, we used quantile regression to compute
-point-forecasts of the expected value (median) for one-day ahead
-predictions of \no concentrations.
+\begin{figure*}
+  \centering
+  \includegraphics[width=1\textwidth]{reliability_sharpness}
+  \caption{Average Reliability and Sharpness of the different probabilistic forecasting
+  across all horizons}
+  \label{figure:rel_sharp}
+\end{figure*}
 
 \begin{table}[tbp]
   \centering
@@ -423,31 +428,27 @@ predictions of \no concentrations.
     LQR = Linear Quantile Regression,
     QRF = Quantile Random Forest)
     }
-    \begin{tabular}{lrrrrr}
+    \begin{tabular}{lrrrr}
       \toprule
-      method &  Arima &    GB &   KNN &   LQR &    QRF \\
-      horizon &        &       &       &       &       \\
+      method &    GB &   KNN &   QLR &    RF \\
+      horizon &       &       &       &       \\
       \midrule
-      1       &   6.18 &  7.27 & 11.67 &  7.23 &  7.70 \\
-      12      &  13.52 & 15.84 & 21.68 & 18.13 & 17.01 \\
-      13      &  12.83 & 14.53 & 20.24 & 15.44 & 15.05 \\
-      14      &  11.54 & 12.05 & 19.13 & 13.24 & 13.42 \\
-      20      &   7.11 &  6.79 & 14.08 &  7.36 &  7.42 \\
-      37      &  13.31 & 16.28 & 19.24 & 16.71 & 16.19 \\
-      45      &   9.01 &  6.96 & 12.48 &  7.90 &  8.69 \\
-      55      &   6.22 & 11.50 & 17.94 & 12.63 & 13.29 \\
+      1       &  7.27 & 11.67 &  7.23 &  7.70 \\
+      12      & 15.84 & 21.68 & 18.13 & 17.01 \\
+      13      & 14.53 & 20.24 & 15.44 & 15.05 \\
+      14      & 12.05 & 19.13 & 13.24 & 13.42 \\
+      20      &  6.79 & 14.08 &  7.36 &  7.42 \\
+      37      & 16.28 & 19.24 & 16.71 & 16.19 \\
+      45      &  6.96 & 12.48 &  7.90 &  8.69 \\
+      55      & 11.50 & 17.94 & 12.63 & 13.29 \\
       \bottomrule
       \end{tabular}
   
 \end{table}
 
 
-Table \ref{tab:determ} shows Arima outperforms the other Machine Learning algorithms.
+Table \ref{tab:determ} shows GB outperforms the other Machine Learning algorithms.
 
-\subsection{Probabilistic forecasting of extreme values}
-\label{sec:probabilistic}
-
-\cite{qxgb}
 
 \section{Conclusions}
 \label{sec:concl}
