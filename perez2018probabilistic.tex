@@ -45,7 +45,7 @@
 \end{abstract}
 
 \begin{keyword}
-probabilistic f orecasting \sep air quality \sep quantile regression
+probabilistic forecasting \sep air quality \sep quantile regression
 \sep nitrogen dioxide \sep Madrid
 \end{keyword}
 
@@ -55,6 +55,27 @@ probabilistic f orecasting \sep air quality \sep quantile regression
 
 \section{Introduction}
 \label{sec:intro}
+
+Pollution has been become an increasing topic in cities due to their adverse 
+effects on health and their increasing levels mainly due to human activity 
+(traffic, heating systems, ...). Forecasting pollution levels is therefore needed 
+in order to take preventive measures against it. More specifically, detecting pollution 
+peaks beforehand could give cities enough time to take effective measures.
+
+Previous research \cite{proba_aznarte} has focused on probabilistic forecasting.
+This type of model forecasts the distribution function instead of the mean of the signal 
+and can therefore be used to forecast the probability of the signal being above a 
+certain threshold. One of the pollutants, $NO_2$ is said to start being harmful at 
+180 $\mu g / m^3$. 
+
+The work of the \cite{proba_aznarte} article focused on the horizon 1 (forecasting levels 1
+hour before) and only used 1 type of model (Quantile Random Forest). Therefore, we will 
+extend this work by testing more models (Quantile linear regression, Gradient Boosted trees 
+and K Neighbors) and for different horizons (up to 60 hours before).
+
+Also we will improve the current models by applying a statistical inference to the output
+of the models. This way, we are converting our forecasting method into a semi-parametric 
+model.
 
 \section{Probabilistic forecasting with quantile regression}
 \label{sec:probForec}
