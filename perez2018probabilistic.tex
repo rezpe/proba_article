@@ -62,16 +62,28 @@ effects on health and their increasing levels mainly due to human activity
 in order to take preventive measures against it. More specifically, detecting pollution 
 peaks beforehand could give cities enough time to take effective measures.
 
-Previous research \cite{proba_aznarte} has focused on probabilistic forecasting.
-This type of model forecasts the distribution function instead of the mean of the signal 
-and can therefore be used to forecast the probability of the signal being above a 
-certain threshold. One of the pollutants, $NO_2$ is said to start being harmful at 
-180 $\mu g / m^3$. 
+Multiple research papers have focused on this issue and have dealt with the
+forecast of pullutants level. Bai et al. \cite{bai_air_2018} describes the latest 
+state of the art in this exercise. As noted by them, there's a diverse range of 
+solutions to this problem.
 
-The work of the \cite{proba_aznarte} article focused on the horizon 1 (forecasting levels 1
-hour before) and only used 1 type of model (Quantile Random Forest). Therefore, we will 
+However as noted by Hothorn et al. \cite{hothorn_conditional_2014}, the real objective in a 
+regression analysis is to find the conditional distribution of the target variable: in our 
+case, the full distribution of the levels of the pollutants. Indeed, the full distribution 
+gives an idea of the uncertainty of our predictions and can be useful to forecast the probability 
+of the signal being above a certain health threshold. 
+For example, $NO_2$ pollutant presence in the air is said to be harmful 
+from 180 $\mu g / m^3$. 
+
+Previous research \cite{proba_aznarte} has already focused on probabilistic forecasting
+for the $NO_2$ pollutant levels.
+
+This work focused on the horizon 1 (forecasting levels 1
+hour before) and only used 1 type of model (Quantile Random Forest). We will 
 extend this work by testing more models (Quantile linear regression, Gradient Boosted trees 
-and K Neighbors) and for different horizons (up to 60 hours before).
+and K Neighbors) and for different horizons (up to 60 hours before). 
+We will inspire our work on the techniques displayed during the GEFCom Competition 
+\cite{mangalova_k-nearest_2016} \cite{hong_probabilistic_2016}.
 
 Also we will improve the current models by applying a statistical inference to the output
 of the models. This way, we are converting our forecasting method into a semi-parametric 
@@ -80,7 +92,7 @@ model.
 \section{Probabilistic forecasting with quantile regression}
 \label{sec:probForec}
 
-As mentioned above, the prediction from most regression models is a
+The prediction from most regression models is a
 point estimate of the conditional mean of a dependent variable, or
 response, given a set of independent variables or predictors. However,
 the conditional mean measures only the center of the conditional
@@ -103,30 +115,26 @@ networks, support vector machines, random forests etc.
 
 Quantile regression has gained an increasing attention from very
 different scientific disciplines \cite{yu_quantile_2003}, including
-financial and economic applications \cite{fitzenberger_economic_2002},
-medical applications \cite{soyiri_forecasting_2012}, wind power
-forecasting \cite{zhang_review_2014}, electric load forecasting
-\cite{7423794,gibbons_quantile_2014}, environmental modelling
+financial and economic applications \cite{ben_rejeb_financial_2016},
+medical applications \cite{jang_quantile_2018}, wind power
+forecasting \cite{wan_direct_2017}, electric load forecasting
+\cite{lebotsa_short_2018}, environmental modelling
 \cite{cade_gentle_2003} and meteorological modelling
-\cite{bjornar_bremnes_probabilistic_2004} (these references are just
+\cite{baur_modelling_2004} (these references are just
 examples and the list is not exhaustive). To our knowledge, despite
 its success in other areas, quantile regression has not been applied
 in the framework of air quality , with the exception of
- \cite{martinez-silva_forecasting_2016}.
+ \cite{martinezsilva_forecasting_2016}.
 
 Thus, as we can estimate an arbitrary quantile and forecast its
 values, we can also estimate the full conditional distribution, which
 will entail us to the results presented in Section \ref{sec:results}.
 
-Also, probabilistic forecasting is an advantage as we need to predict 
-when the target will be above a certain threshold (180 $\mu g / m^3$). 
-So instead of having a 
-Yes/No Answer, we are calculating the probability of the target being the above 
-the threshold.
-
 Among the array of methods that allow to estimate and forecast
 data-driven conditional quantiles, in this study we have chosen
+linear quantile regression,
 k-neighbors quantile regression, quantile regression forests and quantile XGBoost. 
+
 We will compare the different algorithms through the CRPS metric for the 
 distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
 
@@ -151,16 +159,18 @@ and traffic stations.
 
 For this study, we have selected the Diaz Aguirre station.
 
-After analysis of the $NO_2$ values (see \ref{figure:histo_no2}), we have identified them 
-as belonging to a lognormal distribution and therefore we transformed to 
-the log of the values. This has 2 positive effects: the tail of a normal distribution 
-is not as long as for the lognom (so we will have better quantile estimations) and 
-it helps with linear models like the linear quantile regression.
+After analysis of the $NO_2$ values (see \ref{figure:histo_no2}), the shape 
+of the histogram approaches the one from a lognormal distribution 
+and therefore we transformed to 
+the log of the values. This has 2 positive effects: it reduces the tail of the 
+distribution which will enable better quantile estimation and it reduces the 
+skewness of the distribution 
+which helps with linear models like the linear quantile regression.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.4\textwidth]{histo_no2}
-  \caption{Histogram of $NO_2$ and $log(NO_2+40)$}
+  \caption{Histogram of $NO_2$}
   \label{figure:histo_no2}
 \end{figure}
 
@@ -192,12 +202,15 @@ from the Fourier Transform. Those can be seen clearly from the first 3000 compon
   \item Weekly Seasonality
 \end{itemize} 
 
-Therefore, we will create as input the output of periodic functions (cos) whose frequency is equal to the ones found 
+Therefore, we will create as input the output of periodic functions (cos and sin) whose frequency 
+is equal to the ones found 
 above. This will enable the machine learning model learn the seasonality of our time series.
 
-As with any forecast technique based on machine learning, we add previous values to improve the accuracy 
-of the analysis. Based on the seasonal analysis, we see it's interesting to add a week of values. We will not 
-add more to keep a reasonable number of features as input.
+As with any forecast technique based on machine learning, we add lagged values to improve the accuracy 
+of the analysis. We are limited by the horizon of the prediction and 
+keeping a reasonable number of features as input. We will take lagged values from the inmediate past (hours before)
+and from past periods (based on the seasonal analysis): 1-5 hours before, values on the 9 days before at the same 
+hour and values on the 9 days and 12 hours before.
 
 \subsection{$O_3$}
 
@@ -234,33 +247,22 @@ the levels of NO2 in a station.
 
 As $NO_2$ levels seem to be linked to human activity, we will also flag the hours 
 belonging to a specific type of day. Days could be classified as:
--\begin{itemize}
+\begin{itemize}
   \item Bank holidays
   \item Heavy traffic day (for example, return from holidays)
   \item School holidays
 \end{itemize} 
 
-We will create 2 variables: one which indicates the day has a positive effect on pollution and 
-another one for negative effect. We use a linear regression to predict the NO2 value only from the calendar variables.
-As we can see in the figure \ref{figure:fourier}, some variables have a positive effect and others a negative effect, based on the
-sign of the coefficient applied to that feature:
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{calweights}
-  \caption{Weights of the calendar variables.}
-  \label{figure:fourier}
-\end{figure}
-
-Then we will replace the calendar variables with 2 new variables as the sum of the positive 
-features and the sum of the negative features respectively.
+We will also input past values of this variables (up to 3 days before).
 
 \subsection{Experimental Design}
 \label{sec:experimental-design}
 
-First, we aligned all the hourly time series: $NO_2$, $O_3$, ECMWF in the same table 
-and added the lagged values, a seasonal time series with the main periods of the $NO_2$ time series
-and the calendar variables as described in section \ref{sec:cal_data}.
+First, we aligned and gathered all the hourly time series: $NO_2$, $O_3$, ECMWF and calendar variables.
+Then we transformed the signal levels and then we added the lagged values 
+and a seasonal time series with the 
+main periods of the $NO_2$ time series. 
+Table summarizes the predictors we will use in this exercise.
 
 Once all this data is added, we will train the following probabilistic 
 models:
@@ -282,25 +284,26 @@ The figure \ref{figure:dataflow} shows the data flow in the experimental design.
 
 The section \ref{sec:models} provides more information on the probabilistic models.
 
+As explained by Bergmeir et al \cite{bergmeir_note_2018}, there are several methods
+to separate the train and test set. We will use the Out-of-sample method:
 We will train the models with data prior to 2017 and we will test our 
 models with 2017 data. We will always test with 
 predictions done at 10:00, as this is the time the 
-forecast will be done and the alert will be decided 
-or not.
+forecast will be done as the data is available at that time.
 
-After forecasting the quantiles, we will fit those quantiles in a normal distribution.
-We have a low number of percentiles and we would like to get at least 100 percentiles.
+After forecasting the quantiles, we will fit those quantiles to a normal distribution.
+
 Fitting a normal distribution to those percentiles and then generating the 
-percentiles for that fitted distribution can generate much more percentiles 
-than the ones we originally had.
-Also as we do not have enough samples to estimate the upper tail of the distribution, 
-we believe
-fitting the distribution corrects for that and improves estimation for higher values.
+percentiles for that fitted distribution has several advantages. It lets to build a 
+fine grained distribution if you do not have enough percentiles.
+It helps estimating the upper tail of the distribution, in spite of the 
+low probability for 
+those values.
 
-We will evaluate the 50 percentile through the 
-RMSE, MAE, Bias and Corr 
+We will evaluate the 50 percentile through standard evaluation metrics like: RMSE, MAE, 
+Bias and Corr 
 and the whole forecasted CDF through the CRPS. We will perform
-this evaluation for each of the horizons.
+this evaluation for each of the models and each of the horizons.
 
 \subsection{Probabilistic Models}
 \label{sec:models}
@@ -328,10 +331,15 @@ histograms in each tree out of the target observations in those leafs.
 For more information refer to 
 \cite{quantregforests}.
 
+However, Quantile Random Forest does not provide good results. We believe this is 
+due to the high linear dependence between the input predictors and the target. 
+We observe this linearity while comparing the performance of a linear regression and 
+a random forest for a standard forecast, as we can see 
+
 We decided to train a linear regressor
-which predicts the $NO_2$ values from the original features and the 50th quantile, 
-and then apply this linear regression 
-to all the predicted quantiles. 
+which predicts the $NO_2$ values mean and use the Quantile 
+Random Forest to predict the full distribution of the residuals of that linear regression.
+Diagram  shows the updated process.  
 
 \begin{figure}
   \centering
@@ -350,11 +358,11 @@ the targets of the
 $k$ nearest points to the input, it builds a distribution 
 from those neighbors.
 
-We found the best $k$ to be 50 after testing several values of $k$ and calculating 
-the rmse for a simple regression.
+We found the best $k$ to be 50 after testing several values of $k$.
 
-We also trained a linear regressor from the original features and the 50th quantile, 
-and applied it to all the predicted quantiles. 
+In order to obtain better results, we also applied the same process as for 
+quantile random forest by predicting the full distribution of the residuals 
+of a linear regression.
 
 \subsubsection{Linear Quantile regression}
 
@@ -401,23 +409,21 @@ where
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
 median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 
-We will train 10 models to predict the 10 deciles of the signal. As quantiles are 
+We will train 5 models to predict the 5 deciles of the signal. As quantiles are 
 calculated separately, we have the risk of encountering quantile crossing.
 We will use the simple technique as explained in \cite{cross} to solve this problem.
 
 \subsubsection{Gradient Boosted Tree}
 
-Tree Boosting \cite{gradientboost} is a widely used technique for machine learning 
+Tree Boosting \cite{friedman_greedy_2001} is a widely used technique for machine learning 
 that consist on growing trees based on the compromise 
 of a cost function and a regularization function. This cost function is usually 
 used to forecast 
 the mean of the signal. We will modify the cost function (im a similar way as in 
 the quantile linear regression) to predict the quantiles of the target. 
 
-We will train 10 models to predict the 10 deciles of the signal and we will solve 
- quantile crossing with the technique explained in \cite{cross}. We also trained a 
- linear regressor from the original features and the 50th quantile, 
-and applied it to all the predicted quantiles. 
+We will train 5 models to predict the 5 deciles of the signal and we will solve 
+ quantile crossing with the technique explained in \cite{cross}. 
 
 \section{Results and discussion}
 \label{sec:results}
@@ -455,21 +461,22 @@ Forest and Kneighbors suffer from that. Gradient Boosting performs the best of a
     LQR = Linear Quantile Regression,
     QRF = Quantile Random Forest)
     }
-    \begin{tabular}{lrrrr}
+    \begin{tabular}{lrrrrrrr}
       \toprule
-      method &    GB &   KNN &   QLR &    RF \\
-      horizon &       &       &       &       \\
+      method &  Arima &    GB &   GBL &   KNN &   QLR &    RF &   RFL \\
+      horizon &        &       &       &       &       &       &       \\
       \midrule
-      1       &  7.27 & 11.67 &  7.23 &  7.70 \\
-      12      & 15.84 & 21.68 & 18.13 & 17.01 \\
-      13      & 14.53 & 20.24 & 15.44 & 15.05 \\
-      14      & 12.05 & 19.13 & 13.24 & 13.42 \\
-      20      &  6.79 & 14.08 &  7.36 &  7.42 \\
-      37      & 16.28 & 19.24 & 16.71 & 16.19 \\
-      45      &  6.96 & 12.48 &  7.90 &  8.69 \\
-      55      & 11.50 & 17.94 & 12.63 & 13.29 \\
+      1       &   6.18 &  4.00 &  3.97 &  4.65 &  4.16 &  7.73 &  4.21 \\
+      12      &  13.52 & 15.35 & 15.87 & 16.99 & 18.17 & 21.59 & 16.48 \\
+      13      &  12.83 & 15.25 & 15.85 & 16.96 & 18.62 & 19.70 & 16.55 \\
+      14      &  11.54 & 14.38 & 14.19 & 15.41 & 16.75 & 16.53 & 14.92 \\
+      20      &   7.11 &  7.31 &  7.16 &  7.51 &  7.51 &  8.05 &  7.18 \\
+      37      &  13.31 & 15.82 & 16.48 & 17.92 & 19.19 & 20.13 & 16.94 \\
+      45      &   9.01 &  9.27 &  9.71 & 11.14 & 11.29 & 12.40 & 10.28 \\
+      55      &   6.22 &  7.23 &  7.71 & 10.58 &  8.20 & 10.20 &  8.27 \\
       \bottomrule
       \end{tabular}
+      
   
 \end{table}
 
@@ -480,7 +487,7 @@ Table \ref{tab:determ} shows GB outperforms the other Machine Learning algorithm
 \section{Conclusions}
 \label{sec:concl}
 
-\section*{References}
+\section{References}
 
 \bibliography{refs}
 
