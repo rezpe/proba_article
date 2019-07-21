@@ -9,6 +9,7 @@
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage[draft]{fixme}
+\usepackage{makecell}
 
 \journal{Environment International}
 
@@ -56,7 +57,7 @@ probabilistic forecasting \sep air quality \sep quantile regression
 \section{Introduction}
 \label{sec:intro}
 
-Pollution has been become an increasing topic in cities due to their adverse 
+Pollution has become an increasing topic in cities due to their adverse 
 effects on health and their increasing levels mainly due to human activity 
 (traffic, heating systems, ...). Forecasting pollution levels is therefore needed 
 in order to take preventive measures against it. More specifically, detecting pollution 
@@ -78,11 +79,13 @@ from 180 $\mu g / m^3$.
 Previous research \cite{proba_aznarte} has already focused on probabilistic forecasting
 for the $NO_2$ pollutant levels.
 
-This work focused on the horizon 1 (forecasting levels 1
+This work proved the advantage of probabilistic forecast and 
+focused on the horizon 1 (forecasting levels 1
 hour before) and only used 1 type of model (Quantile Random Forest). We will 
 extend this work by testing more models (Quantile linear regression, Gradient Boosted trees 
 and K Neighbors) and for different horizons (up to 60 hours before). 
-We will inspire our work on the techniques displayed during the GEFCom Competition 
+We will inspire some of 
+our work on the techniques displayed during the GEFCom Competition 
 \cite{mangalova_k-nearest_2016} \cite{hong_probabilistic_2016}.
 
 Also we will improve the current models by applying a statistical inference to the output
@@ -95,9 +98,8 @@ model.
 The prediction from most regression models is a
 point estimate of the conditional mean of a dependent variable, or
 response, given a set of independent variables or predictors. However,
-the conditional mean measures only the center of the conditional
-distribution of the response, and if we need a more complete summary
-of this distribution, for example in order to estimate the associated
+the conditional mean does not provide a complete summary
+of the distribution, so in order to estimate the associated
 uncertainty, quantiles are in order. The 0.5 quantile (i.e., the
 median) can serve as a measure of the center, and the 0.9 quantile
 marks the value of the response below which reside the 90\% of the
@@ -133,7 +135,8 @@ will entail us to the results presented in Section \ref{sec:results}.
 Among the array of methods that allow to estimate and forecast
 data-driven conditional quantiles, in this study we have chosen
 linear quantile regression,
-k-neighbors quantile regression, quantile regression forests and quantile XGBoost. 
+$k$-neighbors quantile regression, 
+quantile random forests and quantile Gradient Boosted Trees. 
 
 We will compare the different algorithms through the CRPS metric for the 
 distribution and the RMSE, MAE, Correlation and Bias for the quantile 50.
@@ -155,7 +158,7 @@ We can see the station distribution in figure \ref{figure:stations}.
 
 They are classified into 
 three types: background stations, suburban stations 
-and traffic stations. 
+and traffic stations.
 
 For this study, we have selected the Diaz Aguirre station.
 
@@ -209,8 +212,7 @@ above. This will enable the machine learning model learn the seasonality of our 
 As with any forecast technique based on machine learning, we add lagged values to improve the accuracy 
 of the analysis. We are limited by the horizon of the prediction and 
 keeping a reasonable number of features as input. We will take lagged values from the inmediate past (hours before)
-and from past periods (based on the seasonal analysis): 1-5 hours before, values on the 9 days before at the same 
-hour and values on the 9 days and 12 hours before.
+and from past periods (based on the seasonal analysis): 1-5 hours before and every 11-13 hours up to 9 days before.
 
 \subsection{$O_3$}
 
@@ -230,7 +232,7 @@ We will also add lagged values of $O_3$ to our models.
 \label{sec:ecmwf-numer-poll}
 
 The European Centre for Medium-Range Weather Forecasts implements the Copernicus Atmosphere Monitoring Service.
-This service provides CAMS delivers a saily production of near-real-time European air quality analyses and forecasts 
+This service delivers a daily production of near-real-time European air quality analyses and forecasts 
 with a multi-model ensemble system. 
 As you can see in the figure \ref{figure:camspoints}, the scope of the forecast is european and does not have the needed granularity to forecast 
 the levels of NO2 in a station.
@@ -255,16 +257,32 @@ belonging to a specific type of day. Days could be classified as:
 
 We will also input past values of this variables (up to 3 days before).
 
+\subsection{Hours since 2013}
+
+We are also using as a predictor the number of hours since 2013. 
+This predictor is used to take into account the trend of 
+the series.
+
 \subsection{Experimental Design}
 \label{sec:experimental-design}
+
+As a summary, we use the following predictors:
+\begin{itemize}
+  \item i: Hours since 2013
+  \item $NO_2$ levels lagged 1-5H prior and every 11-13H prior up to 9 days before
+  \item $O_3$ levels lagged like $NO_2$
+  \item Calendar Variables lagged up to 3 days before
+  \item ECMWF predictions
+  \item Seasonal features extracted from Fourier Analysis
+\end{itemize}
 
 First, we aligned and gathered all the hourly time series: $NO_2$, $O_3$, ECMWF and calendar variables.
 Then we transformed the signal levels and then we added the lagged values 
 and a seasonal time series with the 
 main periods of the $NO_2$ time series. 
-Table summarizes the predictors we will use in this exercise.
 
-Once all this data is added, we will train the following probabilistic 
+Once all this process is finalized, 
+we will train the following probabilistic 
 models:
 \begin{itemize}
   \item Quantile Random Forest (RF)
@@ -273,7 +291,9 @@ models:
   \item Quantile Gradient Boosting (GB)
 \end{itemize}
 
-The figure \ref{figure:dataflow} shows the data flow in the experimental design.  
+The figure \ref{figure:dataflow} shows the data 
+flow in the experimental design. All the hyperparameters 
+of the models have been estimated through grid search. 
 
 \begin{figure}
   \centering
@@ -291,12 +311,17 @@ models with 2017 data. We will always test with
 predictions done at 10:00, as this is the time the 
 forecast will be done as the data is available at that time.
 
+We want to forecast the full distribution of $NO_2$ levels
+for the next 60 hours and therefore we will train and evaluate
+the models for each hour (60 horizons).
+
 After forecasting the quantiles, we will fit those quantiles to a normal distribution.
 
 Fitting a normal distribution to those percentiles and then generating the 
-percentiles for that fitted distribution has several advantages. It lets to build a 
-fine grained distribution if you do not have enough percentiles.
-It helps estimating the upper tail of the distribution, in spite of the 
+percentiles for that fitted distribution has several advantages. It 
+enables the calculation of more percentiles
+from a small number of them.
+It also helps estimating the upper tail of the distribution, in spite of the 
 low probability for 
 those values.
 
@@ -319,7 +344,7 @@ We will compare the following probabilistic models:
 \subsubsection{Quantile Random Forest}
 
 Quantile random forests create probabilistic predictions out of 
-the original observations. It works like the usual random forest, 
+the original observations. They work like the usual random forest, 
 except in each tree,
 leafs do not contain a single value as a prediction but the target observations 
 from the training set 
@@ -330,16 +355,6 @@ corresponding to the input features and combining the weighted
 histograms in each tree out of the target observations in those leafs. 
 For more information refer to 
 \cite{quantregforests}.
-
-However, Quantile Random Forest does not provide good results. We believe this is 
-due to the high linear dependence between the input predictors and the target. 
-We observe this linearity while comparing the performance of a linear regression and 
-a random forest for a standard forecast, as we can see 
-
-We decided to train a linear regressor
-which predicts the $NO_2$ values mean and use the Quantile 
-Random Forest to predict the full distribution of the residuals of that linear regression.
-Diagram  shows the updated process.  
 
 \begin{figure}
   \centering
@@ -356,13 +371,7 @@ This algorithm is based on the standard $k$ nearest neighbor,
 where instead of calculating the mean of 
 the targets of the
 $k$ nearest points to the input, it builds a distribution 
-from those neighbors.
-
-We found the best $k$ to be 50 after testing several values of $k$.
-
-In order to obtain better results, we also applied the same process as for 
-quantile random forest by predicting the full distribution of the residuals 
-of a linear regression.
+from the target of those neighbors.
 
 \subsubsection{Linear Quantile regression}
 
@@ -409,11 +418,13 @@ where
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the
 median when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 
-We will train 5 models to predict the 5 deciles of the signal. As quantiles are 
-calculated separately, we have the risk of encountering quantile crossing.
-We will use the simple technique as explained in \cite{cross} to solve this problem.
+We will train 5 linear regression models to predict the 5 deciles of the signal. 
+As quantiles are 
+calculated separately, we have the risk of quantile crossing.
+We will reorder the quantiles as explained 
+in \cite{cross} to solve this problem.
 
-\subsubsection{Gradient Boosted Tree}
+\subsubsection{Gradient Boosted Trees}
 
 Tree Boosting \cite{friedman_greedy_2001} is a widely used technique for machine learning 
 that consist on growing trees based on the compromise 
@@ -422,8 +433,14 @@ used to forecast
 the mean of the signal. We will modify the cost function (im a similar way as in 
 the quantile linear regression) to predict the quantiles of the target. 
 
-We will train 5 models to predict the 5 deciles of the signal and we will solve 
- quantile crossing with the technique explained in \cite{cross}. 
+Also, we could have also applied gradient boosted tree to the residuals of a linear 
+regression, but as the model is already an additive model, we observe no improvement 
+in doing so. 
+
+We will train 5 gradient boosted trees models to 
+predict the 5 deciles of the signal and we will solve 
+ quantile crossing with the technique explained 
+ in \cite{cross}. 
 
 \section{Results and discussion}
 \label{sec:results}
@@ -433,59 +450,246 @@ We will train 5 models to predict the 5 deciles of the signal and we will solve
   \includegraphics[width=\textwidth]{results/errorGraph}
   \caption{Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
-    forecasting horizon and in average.}
+    forecasting horizon and in average. (GB = Gradient Boosted Trees,
+    KNN = K Nearest Neighbor,
+    QLR = Linear Quantile Regression,
+    RF = Quantile Random Forest)}
   \label{figure:errorGraph}
 \end{figure*}
 
-Figure \ref{figure:rel_sharp} shows the average reliability and sharpness of the 
-different methods across all the horizons. 
-As we can see, Random Forest and Kneighbors display a high bias that can be seen in the 
-sharpness curve. QLR results give a hint on why this is happening. It seems the relationship
-between the target and the input variable is highly linear, therefore models like Random 
-Forest and Kneighbors suffer from that. Gradient Boosting performs the best of all.
+Figure \ref{figure:errorGraph} shows the different metrics for each 
+model across all the horizons.
+
+First, we see Gradient Boosted Trees outperform 
+the other models and 
+displays better score for all metrics.
+
+Secondly, we see that Quantile Random Forest and 
+$k$ nearest neighbor underperform compared to the other 
+models. For instance, the bias of those 2 models 
+is really high compared 
+to the others. 
+The main reason for this is the high 
+linear dependence of 
+the data. This also explains then the good results 
+of the linear model (QLR).
+
+However, linear models 
+underperforms against Gradient Boosted Trees 
+as it is not able 
+to learn the non-linear relationship between the 
+predictors and the target. 
+
+As stated earlier, the $NO_2$ levels 
+follow a lognormal distribution and 
+it seems the levels of $NO_2$ follow a multiplicative 
+model (different causes multiply the level of pollution), 
+therefore the log 
+of the NO2 levels is better forecast with an additive model.
+This is the reason 
+why Gradient Boosted Trees outperform the other models:
+It can add the non-linear effects.
+
+\begin{table}[tbp]
+  \centering
+  \label{tab:determ}
+  \caption{CRPS Error for the different methods at different
+    horizons (GB = Gradient Boosted Trees,
+    KNN = K Nearest Neighbor,
+    QLR = Linear Quantile Regression,
+    RF = Quantile Random Forest)
+    }
+    \begin{tabular}{lrrrr}
+        \toprule
+        \multicolumn{1}{|c|}{} & \multicolumn{4}{c|}{Model} \\  
+        horizon &    GB &   KNN &   QLR &    RF \\
+        \midrule
+        1     &  \textbf{4.06} &  7.21 &  4.26 &  9.52 \\
+        12    & \textbf{16.12} & 20.22 & 18.67 & 26.28 \\
+        13    & \textbf{15.38} & 19.30 & 18.81 & 22.85 \\
+        14    & \textbf{14.46} & 16.65 & 17.00 & 18.55 \\
+        20    &  \textbf{7.45} &  7.96 &  7.62 &  8.63 \\
+        37    & \textbf{16.32} & 19.83 & 19.87 & 23.21 \\
+        45    &  \textbf{9.18} & 10.65 & 11.25 & 13.31 \\
+        55    &  \textbf{7.33} &  8.99 &  8.52 & 11.82 \\
+        Average & \textbf{9.55} & 11.61 & 11.04 & 14.46 \\
+        \bottomrule
+        \end{tabular}
+\end{table}
+
+Table \ref{tab:determ} displays the CRPS of the different models at some 
+of the prediction horizons. The table shows again the good performance of the 
+gradient boosted Trees model for CRPS. 
 
 \begin{figure*}
   \centering
   \includegraphics[width=1\textwidth]{reliability_sharpness}
   \caption{Average Reliability and Sharpness of the different probabilistic forecasting
   across all horizons}
-  \label{figure:rel_sharp}
+  \label{figure:rel_sharp} 
 \end{figure*}
 
-\begin{table}[tbp]
+For probabilistic models, CRPS is a good summary of 
+the performance of the models,
+However a reliability/sharpness curve would be better at estimating 
+how the observed values are positioned in the distributions.
+Figure \ref{figure:rel_sharp} features the 
+reliability and sharpness of the different models.
+
+The sharpness curve shows that Random Forest and 
+$k$-neighbors completely
+underestimate the levels of NO2. This is seen 
+in the sharpness curve
+in the upper percentiles. The observed values 
+of those percentiles are noticeably higher than 
+the forecast values. This means that too many times, 
+the observed values are in the upper percentiles of 
+the distribution.
+This is also a consequence of the bias of both models.
+
+Gradient Boosted Trees and Linear Quantile forecast 
+distributions seem 
+more balanced but display 
+high values at both side of the sharpness curve. 
+If we consider the distribution
+to be a gaussian distribution, this
+means the forecast distribution tend to have a 
+too small standard deviation 
+and be 
+too narrow. Therefore, the forecast probability of some 
+levels of NO2 is too small compared to the observed one.
+This could be improved by forecasting more percentiles 
+instead of only 5.
+
+\subsection{Comparison of prediction on some days}
+
+Figure \ref{figure:evoday1} and 
+\ref{figure:evoday2} 
+compare the distribution forecast of the 4 models 
+in 2 different days: one day with healthy levels and another 
+with levels above the health threshold (180 $\mu g / m^3$).
+As stated earlier, the predictions were done 
+at 10:00 AM and we forecast the distribution 
+for the next 60 hours.
+
+We see more clearly in those examples how the Random Forest 
+underestimates the target and misses to build a meaningful distribution as 
+it is not fitting well the data.
+$k$-nearest neighbor does a better job but the upper percentiles of 
+the distribution are too high.
+QLR and GB fit better the data with GB distribution making a better job, 
+specially on high values.
+
+\begin{figure*}
   \centering
-  \label{tab:determ}
-  \caption{CRPS Error for the different methods at different
-    horizons (GB = Gradient Boosting,
-    KNN = K Nearest Neighbor,
-    LQR = Linear Quantile Regression,
-    QRF = Quantile Random Forest)
-    }
-    \begin{tabular}{lrrrrrrr}
-      \toprule
-      method &  Arima &    GB &   GBL &   KNN &   QLR &    RF &   RFL \\
-      horizon &        &       &       &       &       &       &       \\
-      \midrule
-      1       &   6.18 &  4.00 &  3.97 &  4.65 &  4.16 &  7.73 &  4.21 \\
-      12      &  13.52 & 15.35 & 15.87 & 16.99 & 18.17 & 21.59 & 16.48 \\
-      13      &  12.83 & 15.25 & 15.85 & 16.96 & 18.62 & 19.70 & 16.55 \\
-      14      &  11.54 & 14.38 & 14.19 & 15.41 & 16.75 & 16.53 & 14.92 \\
-      20      &   7.11 &  7.31 &  7.16 &  7.51 &  7.51 &  8.05 &  7.18 \\
-      37      &  13.31 & 15.82 & 16.48 & 17.92 & 19.19 & 20.13 & 16.94 \\
-      45      &   9.01 &  9.27 &  9.71 & 11.14 & 11.29 & 12.40 & 10.28 \\
-      55      &   6.22 &  7.23 &  7.71 & 10.58 &  8.20 & 10.20 &  8.27 \\
-      \bottomrule
-      \end{tabular}
-      
-  
-\end{table}
+  \includegraphics[width=1\textwidth]{evoday1}
+  \caption{Forecast on September, 9th 2017}
+  \label{figure:evoday1} 
+\end{figure*}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=1\textwidth]{evoday2}
+  \caption{Forecast on November, 21st 2017}
+  \label{figure:evoday2} 
+\end{figure*}
+
+\subsection{Feature Importance}
+
+We can analyze the importance of features on our models. For 
+this, we will use the SHAP value \cite{lundberg_unified_2017}, which indicates 
+the contribution of each feature in each of the predictions.
+
+In figure \ref{figure:imp_feat}, we see that the most important variables 
+are the lagged values and the CAMS 
+features. The importance of the i feature (hours since 2013) in the table 
+is due to the 
+trend in the signal. As we can see by the shap values, the hours has the 
+same effect for all the test points, it raises the value of the prediction 
+upwards, almost by the same amount.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.4\textwidth]{imp_feat}
+  \caption{Feature Importance}
+  \label{figure:imp_feat}
+\end{figure}
 
 
-Table \ref{tab:determ} shows GB outperforms the other Machine Learning algorithms.
+\subsection{Probabilistic forecast of linear regression residuals}
 
+As stated before, we see a high linear dependence 
+between the input predictors and the target. Therefore we had 
+poorer results for $k$ neares neighbor and random forest than
+for linear quantile model. However, we believe we can improve the 
+results by combining both models. 
+
+We decided to train a linear regressor
+which predicts the $NO_2$ values and use the Quantile 
+Random Forest or $k$ nearest neighbor to predict 
+the full distribution of the residuals of that linear regression.  
+
+We obtained much better results and 
+we brought a real improvement to the predictions. Figure 
+\ref{figure:errorGraph_rfl} shows the updated metrics with the new models.
+We can see the comparison 
+with the original Gradient Boosted Tree 
+and linear quantile models.
+
+We see the combined models still underperform against Gradient Boosted 
+Trees, but not by a big margin and on top of that 
+the training 
+times of those models is much lower: 3 minutes per horizon on Gradient 
+Boosted Trees versus 15 seconds
+per horizon for $K$-nearest neighbor and
+quantile random forests. Those are 
+much simpler models that take much less time to train.
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=\textwidth]{results/errorGraph_rfl_knnl}
+  \caption{Continuous ranked probability score, root mean squared
+    error and bias of the different models with respect to the
+    forecasting horizon and in average.}
+  \label{figure:errorGraph_rfl}
+\end{figure*}
 
 \section{Conclusions}
 \label{sec:concl}
+
+After extracting and processing the data from 
+one of the pollution stations in Madrid,
+we have compared 4 different models 
+(Quantile Random Forest, 
+Quantile linear regression, 
+Gradient Boosted trees 
+and K Neighbors)
+to 
+build a probabilistic forecast of the levels 
+of $NO_2$ up to 60 hours prior. We have evaluated 
+our models through the forecast 
+quantile 50 (RMSE, Bias, Correlation) 
+and the forecast distribution (CRPS, 
+Reliability and Sharpness).
+
+We have observed a high linear dependence 
+between the target and the features. For this 
+reason, the linear quantile model has performed 
+well compared to Random Forest and $k$ nearest 
+neighbor. However, the 
+multiplicative nature of the levels of $NO_2$
+and the non-linear dependence between target and 
+features have lead to better results 
+for the Gradient Boosted Trees 
+which has outperformed all the other models in all 
+metrics. 
+
+However, quantile random forest and quantile $k$ nearest neighbors 
+could be used to improve the results of the linear model when 
+used as models for the full distribution of the residuals 
+of a linear regression. Those models are easier and faster to 
+train, so they become worthy alternatives to the Gradient Boosted Trees.
+
 
 \section{References}
 

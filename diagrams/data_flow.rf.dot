@@ -13,7 +13,6 @@ data[shape="box"  label="Original Data:
 a[shape="box"  label="Transform
 - Time transpolation
 - Log transformation
-- Detrend
 - Merge
 - Lags"]
 
