@@ -4,6 +4,7 @@ digraph {
 
 rankdir="TB"
 graph [splines=ortho]
+ranksep = .25
 
 data[shape="box"  label="Original Data:
 - NO2 and O3 hourly data

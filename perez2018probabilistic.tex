@@ -9,7 +9,7 @@
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage[draft,inline,nomargin]{fixme}
-\usepackage{makecell}
+\usepackage{makecell} 
 
 \journal{Environment International}
 
@@ -144,6 +144,7 @@ quantile random forests and quantile gradient boosted trees.
 
 % We will compare the different algorithms through the CRPS metric for the 
 % distribution and the RMSE, MAE, correlation and bias for the quantile 50.
+\fxnote{Add reference to crps}
 
 \section{Data description and experimental design}
 
@@ -191,7 +192,7 @@ distribution which helps with linear models like the linear quantile
 regression.
 
 The time series for this station consists of hourly measured values of
-the concentrations of NO\textsubscript{2} from 01/01/2000 to
+the concentrations of NO\textsubscript{2} from 01/01/2013 to
 30/11/2017. These values exhibit a clear intraday pattern, in which
 the higher values are located in two peaks around the morning and
 evening (with highest average value around 19h) while the nightly
@@ -239,19 +240,12 @@ models.
 \subsection{ECMWF numerical pollution prediction}
 \label{sec:ecmwf-numer-poll}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{camspoints}
-  \label{figure:camspoints}
-  \caption{Location of the points with predicted pollution from CAMS.}
-\end{figure}
-
 The European Centre for Medium-Range Weather Forecasts (ECMWF)
 implements the Copernicus Atmosphere Monitoring Service.  This service
 delivers a daily production of near-real-time European air quality
 analyses and forecasts with a multi-model ensemble system. Although
-these forecasts are a very good starting point, as can be seen in
-Figure \ref{figure:camspoints}, the resolution of the model is large
+these forecasts are a very good starting point, 
+the resolution of the model is 10km
 and hence it is not expected to be capable of modelling the local
 urban effects of the NO\textsubscript{2} series under study.
 
@@ -265,12 +259,6 @@ return from holidays), school holidays\ldots We will also use as
 inputs to the models past values of this variables (up to 3 days
 before).
 
-%\subsection{Hours since 2013}
-
-In order to ease the modelling of the trend present in the series, we
-will also use as a predictor the number of hours since
-2013. \fxnote{How is it from 2013 and not from 2010?}
-
 \subsection{Experimental Design}
 \label{sec:experimental-design}
 
@@ -278,8 +266,7 @@ will also use as a predictor the number of hours since
   \centering
   \includegraphics[width=0.15\textwidth]{diagrams/flow}
   \caption{\label{figure:dataflow}Data flow of the
-    experiments. \fxnote{Would it be possible to reduce the height of
-      the graphic using shorter arrows?}}
+    experiments.}
 \end{figure}
 
 As a summary, we use the following predictors: NO\textsubscript{2}
