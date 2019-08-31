@@ -520,6 +520,38 @@ forecast probability of some levels of NO\textsubscript{2} is too
 small compared to the observed one.  This could be improved by
 forecasting more percentiles instead of only 5.
 
+\subsection{Probabilistic forecast of linear regression residuals}
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{results/errorGraph_rfl_knnl}
+  \caption{Continuous ranked probability score, root mean squared
+    error and bias of the different models with respect to the
+    forecasting horizon and in average.}
+  \label{figure:errorGraph_rfl}
+\end{figure}
+
+As stated before, the results show a high linear dependence between
+the input predictors and the target. Therefore we had poorer results
+for $k$-nearest neighbors and random forests than for the linear
+quantile model. However, we believe we can improve the results by
+combining both models.
+
+We decided to train a linear regressor which predicts the
+NO\textsubscript{2} values and then use the quantile random forest and
+$k$-nearest neighbor to predict the full distribution of the residuals
+of that linear regression.
+
+We obtained much better results and we brought a real improvement to
+the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
+metrics with the new models.  We can see the comparison with the
+original gradient boosted tree and quantile linear regression models.
+
+We see the combined models still underperform against gradient boosted
+trees.
+
+
+
 \subsection{Comparison of the prediction on selected days}
 
 \begin{figure*}
@@ -555,63 +587,31 @@ distribution making a better job, specially on high values.
 \fxnote{Uniformize the naming of the models throughout the
   paper. It is ok to use QLR, RF, $k$NN and GB.}
 
-\subsection{Feature Importance}
 
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.4\textwidth]{imp_feat}
-  \caption{Feature Importance}
-  \label{figure:imp_feat}
-\end{figure}
+\subsection{Detection of NO2 level peaks}
 
-We can analyze the importance of features on our models. For this, we
-will use the SHAP value \cite{lundberg_unified_2017}, which indicates
-the contribution of each feature in each of the predictions.
+One of the main reasons we have performed a probabilistic forecast 
+is to be able to detect the probability of NO2 to be above a certain 
+threshold. So we will evaluate as well our models to check how 
+good are they to detect those peaks. 
+We can consider that above 180ug/m3, the levels of NO2 present 
+are dangerous for health and we should avoid being exposed to 
+such levels for a prolonged time. 
 
-Figure \ref{figure:imp_feat} shows the SHAP relative importances for
-the GB model. \fxnote{Is it GB?} We see that the most important
-variables are the lagged values and the CAMS features. The importance
-of the i feature (hours since 2013) in the table is due to the trend
-in the signal. As we can see by the SHAP values, the hours has the
-same effect for all the test points, it raises the value of the
-prediction upwards, almost by the same amount. \fxnote{This last
-  sentence is unclear and should be rewritten.}
+We can convert our probabilistic models into classifiers by estimating 
+the probability of the NO2 levels being above the threshold. 
+Usually authorities perform an action to remediate this situation:
+in Madrid, traffic is slowed down or even stopped, cars are forbidden 
+entrance in the city and this could last for several days. This has 
+a serious repercussion in the city and can not occur too often.
+Therefore, the probability triggering an action needs to be high and 
+the number of actions needs to be limited.
+
+In the last year of our training set, there were 10 days when the 
+levels of NO2 reach above the threshold, so we will choose a probability in 
+our train set.
 
 
-\subsection{Probabilistic forecast of linear regression residuals}
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{results/errorGraph_rfl_knnl}
-  \caption{Continuous ranked probability score, root mean squared
-    error and bias of the different models with respect to the
-    forecasting horizon and in average.}
-  \label{figure:errorGraph_rfl}
-\end{figure}
-
-As stated before, the results show a high linear dependence between
-the input predictors and the target. Therefore we had poorer results
-for $k$-nearest neighbors and random forests than for the linear
-quantile model. However, we believe we can improve the results by
-combining both models.
-
-We decided to train a linear regressor which predicts the
-NO\textsubscript{2} values and then use the quantile random forest and
-$k$-nearest neighbor to predict the full distribution of the residuals
-of that linear regression.
-
-We obtained much better results and we brought a real improvement to
-the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
-metrics with the new models.  We can see the comparison with the
-original gradient boosted tree and quantile linear regression models.
-
-We see the combined models still underperform against gradient boosted
-trees, but not by a big margin and on top of that the training times
-of those models is much lower: 3 minutes per horizon on Gradient
-Boosted Trees versus 15 seconds per horizon for $K$-nearest neighbors
-and quantile random forests. Those are much simpler models that take
-much less time to train.
-\fxnote{Put training times in a table?}
 
 \section{Conclusions}
 \label{sec:concl}
