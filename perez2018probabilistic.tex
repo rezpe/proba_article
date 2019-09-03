@@ -174,13 +174,10 @@ quantile random forests and quantile gradient boosted trees.
 \end{figure}
 
 The city of Madrid has an air quality monitoring system composed by 24
-stations which capture hourly data for NO2.  % They are spatially
-% distributed according to European regulations, and the station
-% distribution is shown in figure \ref{figure:stations}.
-% They are classified into three types: background stations, suburban
-% stations and traffic stations.
-For this study, we have selected one of
-the stations with higher average leves: Escuelas Aguirre station (code
+stations which capture hourly data for NO2.  For this study, we 
+have selected one of
+the stations with higher average leves: 
+Escuelas Aguirre station (code
 28079008).
 
 As we can see in \ref{figure:histo_no2}, the shape of the histogram
@@ -204,7 +201,7 @@ In order to analyze the seasonality of the signal, we extract the 5
 main factors from the Fourier transform. Those correspond to the main
 repetitive patterns found on the series, and can be seen clearly from
 the first 3000 components. The series shows certain seasonality for
-12-hour, one year, one day, 4 years and one week.  Therefore, we will
+12-hour, 24-hour, one week (168-hour) and one year.  Therefore, we will
 create, and use as inputs for the models, the output of periodic
 functions (cosine and sine) whose frequency is equal to the ones
 stated above. This will enable the machine learning models to learn
@@ -272,8 +269,8 @@ before).
 As a summary, we use the following predictors: NO\textsubscript{2}
 measures lagged 1-5H and every 11-13H up to 9 days before,
 O\textsubscript{3} levels lagged in the same way as
-NO\textsubscript{2}, calendar variables lagged up to 3 days before,
-hours since 2013, ECMWF predictions and seasonal features extracted
+NO\textsubscript{2}, calendar variables lagged 1,2 and 7 days before,
+ ECMWF predictions and seasonal features extracted
 from the Fourier analysis. This amounts to a total of XX independent
 variables. \fxnote{Substitute XX.}
 
