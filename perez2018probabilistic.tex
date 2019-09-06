@@ -151,25 +151,11 @@ quantile random forests and quantile gradient boosted trees.
 \subsection{Nitrogen dioxide}
 \label{sec:no2}
 
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=0.4\textwidth]{zonas_madrid}
-%   \label{figure:stations}
-%   \caption{Spatial distribution of Madrid's pollution
-%     stations. Source: Municipality of Madrid.}
-% \end{figure} 
-
 \begin{figure}
   \centering
-  \includegraphics[width=0.4\textwidth]{histo_no2}
-  \caption{\label{figure:histo_no2}Distribution of logarithmic
-    NO\textsubscript{2}.}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.25\textwidth]{NO2Var}
-  \caption{\label{figure:variance}Distribution of NO\textsubscript{2}
+  \includegraphics[width=0.4\textwidth]{histo_variance}
+  \caption{\label{figure:histo_variance}Distribution of logarithmic
+    NO\textsubscript{2} and Distribution of NO\textsubscript{2}
     per hour.}
 \end{figure}
 
@@ -180,7 +166,7 @@ the stations with higher average leves:
 Escuelas Aguirre station (code
 28079008).
 
-As we can see in \ref{figure:histo_no2}, the shape of the histogram
+As we can see in \ref{figure:histo_variance}, the shape of the histogram
 approaches the one from a lognormal distribution and therefore we
 transformed to the logarithm of the values. This has 2 positive
 effects: it reduces the tail of the distribution which will enable
@@ -195,7 +181,7 @@ the higher values are located in two peaks around the morning and
 evening (with highest average value around 19h) while the nightly
 hours (from 00h to 05h) have lower average concentrations.  Not only
 are the values higher at those hours, but also the variance is, as we
-can see in figure \ref{figure:variance}.
+can see in figure \ref{figure:histo_variance}.
  
 In order to analyze the seasonality of the signal, we extract the 5
 main factors from the Fourier transform. Those correspond to the main
@@ -253,7 +239,7 @@ As NO\textsubscript{2} levels are clearly be linked to human activity,
 we will also flag the hours belonging to a specific type of day. Days
 could be classified as bank holidays, heavy traffic days (for example,
 return from holidays), school holidays\ldots We will also use as
-inputs to the models past values of this variables (up to 3 days
+inputs to the models past values of this variables ( 1,2 and 7 days
 before).
 
 \subsection{Experimental Design}
@@ -268,11 +254,11 @@ before).
 
 As a summary, we use the following predictors: NO\textsubscript{2}
 measures lagged 1-5H and every 11-13H up to 9 days before,
-O\textsubscript{3} levels lagged in the same way as
-NO\textsubscript{2}, calendar variables lagged 1,2 and 7 days before,
+O\textsubscript{3} levels lagged every 24H up to 4 days before, 
+calendar variables lagged 1,2 and 7 days before,
  ECMWF predictions and seasonal features extracted
-from the Fourier analysis. This amounts to a total of XX independent
-variables. \fxnote{Substitute XX.}
+from the Fourier analysis. This amounts to a total of 102 independent
+variables. 
 
 When performing the experiments, first we aligned and gathered all the
 hourly time series: NO\textsubscript{2}, O\textsubscript{3}, ECMWF and
