@@ -409,7 +409,7 @@ explained in \cite{cross}.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{results/errorGraph}
+  \includegraphics[width=0.5\textwidth]{error_graph}
   \caption{\label{figure:errorGraph}
     Continuous ranked probability score, root mean squared
     error, bias and correlation of the different models with respect to the
@@ -432,16 +432,16 @@ explained in \cite{cross}.
     & \multicolumn{4}{c}{Model} \\ \cmidrule{2-5} 
     horizon &    GB &   $k$NN &   QLR &    RF \\
     \midrule
-    1     & 4.06 &  7.21 &  4.26 &  9.52 \\
-    12    & 16.12 & 20.22 & 18.67 & 26.28 \\
-    13    & 15.38 & 19.30 & 18.81 & 22.85 \\
-    14    & 14.46 & 16.65 & 17.00 & 18.55 \\
-    20    & 7.45 &  7.96 &  7.62 &  8.63 \\
-    37    & 16.32 & 19.83 & 19.87 & 23.21 \\
-    45    & 9.18 & 10.65 & 11.25 & 13.31 \\
-    55    & 7.33 &  8.99 &  8.52 & 11.82 \\
+    1     &  4.21 &  6.89 &  4.21 &  8.61 \\
+12    & 16.96 & 20.11 & 19.79 & 22.99 \\
+13    & 16.66 & 18.85 & 19.56 & 20.32 \\
+14    & 15.43 & 16.33 & 17.35 & 17.06 \\
+20    &  7.46 &  7.91 &  7.64 &  8.58 \\
+37    & 18.26 & 19.59 & 21.42 & 20.73 \\
+45    &  9.87 & 10.83 & 11.88 & 12.08 \\
+55    &  8.20 &  9.18 &  9.69 & 10.68 \\
     \midrule
-    Average & 9.55 & 11.61 & 11.04 & 14.46 \\
+    Average & 10.39 & 11.59 & 11.59 & 13.12 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -507,7 +507,7 @@ forecasting more percentiles instead of only 5.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{results/errorGraph_rfl_knnl}
+  \includegraphics[width=0.5\textwidth]{errorGraph_rfl_knnl}
   \caption{Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
     forecasting horizon and in average.}
@@ -541,8 +541,7 @@ trees.
   \centering
   \includegraphics[width=0.75\textwidth]{evoday1}
   \caption{Forecasts of the four models on September, 9th
-    2017. \fxnote{Replace the titles of each graph with just the name
-      of the model}}
+    2017.}
   \label{figure:evoday1} 
 \end{figure*}
 
@@ -593,6 +592,40 @@ the number of actions needs to be limited.
 In the last year of our training set, there were 10 days when the 
 levels of NO2 reach above the threshold, so we will choose a probability in 
 our train set.
+
+\begin{table}[tbp]
+  \centering
+  \caption{
+    Detection of hours whose NO2 levels are above 180
+  }
+  \begin{tabular}{lr|rr|rr|rr|rr}
+    \toprule 
+    \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNN} & \multicolumn{2}{c}{QRF}   \\
+    horizon &  above &  + &  - &  + &  - &  + &  - &  + &  - \\
+    \midrule
+    7  &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+8  &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+9  &                11 &              3 &                   - &              1 &                   -1 &              - &                    - &             - &                   - \\
+10 &                19 &              3 &                   - &              2 &                   - &              - &                    - &             - &                   - \\
+11 &                16 &              4 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+12 &                10 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+13 &                 4 &             - &                   -1 &             - &                   - &              - &                    - &             - &                   - \\
+31 &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+32 &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+33 &                11 &              3 &                   - &             - &                   -1 &              - &                    - &             - &                   - \\
+34 &                19 &              3 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+35 &                16 &              2 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+36 &                10 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+37 &                 4 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+55 &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+56 &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
+57 &                11 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+58 &                19 &              2 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+
 
 
 
