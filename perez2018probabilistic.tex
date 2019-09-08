@@ -55,10 +55,9 @@ probabilistic forecasting \sep air quality \sep quantile regression
 
 %\linenumbers
 
-\section{Introduction}
+\section{Introduction }
 \label{sec:intro}
 
-\fxnote{Revise \& rewrite for clearness and narrative tension.}
 
 Pollution has become an increasing topic in cities due to their
 adverse effects on health and their increasing levels mainly due to
@@ -68,34 +67,60 @@ against it. More specifically, detecting pollution peaks beforehand
 could give cities enough time to take effective measures.
 
 Multiple research papers have focused on this issue and have dealt
-with the forecast of pullutants level. Bai et al. \cite{bai_air_2018}
-describes the latest state of the art in this exercise. As noted by
-them, there's a diverse range of solutions to this problem.
+with the forecast of pollutants level. Bai et al. \cite{bai_air_2018}
+describes the latest state of the art in this exercise and describes 
+a diverse range of solutions to this problem.
 
-However as noted by Hothorn et al. \cite{hothorn_conditional_2014},
+However, performing a point-estimation does not provide enough 
+information about the likelihood of the pollutant levels 
+reaching a certain 
+threshold. Indeed, we have an estimate but we do not have a
+description of the confidence of the model nor the uncertainty 
+in the predictions. Therefore, it is difficult to estimate the 
+probability of the pollutant reaching above a certain threshold.
+
+The reason this probability estimation is so important is because 
+the measures taken by cities to limit pollution (for example,
+limiting traffic) impact the 
+economic activity of the city and prove themselves to be quite
+ unpopular. 
+Therefore, city halls need to check the confidence in the 
+prediction to engage those preventive measures.
+
+Also the use of a classifier (above or below threshold) can not 
+be used. First, we would need a classifier per threshold, but 
+more importantly, pollution peak is an extremely rare event and 
+classifiers would have to be trained with high imbalanced datasets.
+
+That's why as noted by Hothorn et al. \cite{hothorn_conditional_2014},
 the real objective in a regression analysis is to find the conditional
-distribution of the target variable: in our case, the full
+distribution of the target variable: in our case, the full 
 distribution of the levels of the pollutants. Indeed, the full
 distribution gives an idea of the uncertainty of our predictions and
 can be useful to forecast the probability of the signal being above a
-certain health threshold.  For example, $NO_2$ pollutant presence in
-the air is said to be harmful from 180 $\mu g / m^3$.
+certain health threshold.  For example, \no pollutant presence in
+the air is said to be harmful from 180 $\mu g / m^3$. 
 
 Previous research \cite{proba_aznarte} has already focused on
-probabilistic forecasting for the $NO_2$ pollutant levels.
+probabilistic forecasting for the \no pollutant levels.
 
 This work proved the advantage of probabilistic forecast and focused
 on the horizon 1 (forecasting levels 1 hour before) and only used 1
 type of model (Quantile Random Forest). We will extend this work by
-testing more models (Quantile linear regression, Gradient Boosted
-trees and K Neighbors) and for different horizons (up to 60 hours
+testing more models (Quantile linear regression, Quantile Gradient 
+Boosted
+trees, quantile random forests and quantile $k$-nearest neighbors) 
+and for different horizons (up to 60 hours
 before).  We will inspire some of our work on the techniques displayed
 during the GEFCom Competition \cite{mangalova_k-nearest_2016}
 \cite{hong_probabilistic_2016}.
 
-Also we will improve the current models by applying a statistical
+Also we will improve the models by applying a statistical
 inference to the output of the models. This way, we are converting our
 forecasting method into a semi-parametric model.
+
+Finally, we will estimate how good are the models at predicting 
+pollution peaks for the different horizons.
 
 \section{Probabilistic forecasting with quantile regression}
 \label{sec:probForec}
@@ -139,12 +164,20 @@ will entail us to the results presented in Section \ref{sec:results}.
 
 Among the growing array of methods that allow to estimate and forecast
 data-driven conditional quantiles, in this study we have chosen to
-compare linear quantile regression, $k$-neighbors quantile regression,
-quantile random forests and quantile gradient boosted trees.
+compare linear regression,  $k$-nearest neighbors,
+ random forests and gradient boosted trees. We took
+the point-estimate version of those models and converted them 
+to their quantile or probabilistic counterparts. We can therefore 
+compare each model not only on the accuracy of their point estimation
+but on the confidence of each model.
 
-% We will compare the different algorithms through the CRPS metric for the 
-% distribution and the RMSE, MAE, correlation and bias for the quantile 50.
-\fxnote{Add reference to crps}
+We will compare the different algorithms through the RMSE, MAE 
+and bias for the quantile 50 and 
+the CRPS metric for the forecast distribution.
+As described by Gneiting et al. \cite{gneiting_probabilistic_2014},
+CRPS is a measure of the squared difference between the 
+forecast cumulative distribution function (CDF) 
+and the empirical CDF of the observation.
 
 \section{Data description and experimental design}
 
@@ -175,7 +208,7 @@ distribution which helps with linear models like the linear quantile
 regression.
 
 The time series for this station consists of hourly measured values of
-the concentrations of NO\textsubscript{2} from 01/01/2013 to
+the concentrations of \no from 01/01/2013 to
 30/11/2017. These values exhibit a clear intraday pattern, in which
 the higher values are located in two peaks around the morning and
 evening (with highest average value around 19h) while the nightly
@@ -252,7 +285,7 @@ before).
     experiments.}
 \end{figure}
 
-As a summary, we use the following predictors: NO\textsubscript{2}
+As a summary, we use the following predictors: \no
 measures lagged 1-5H and every 11-13H up to 9 days before,
 O\textsubscript{3} levels lagged every 24H up to 4 days before, 
 calendar variables lagged 1,2 and 7 days before,
@@ -261,17 +294,18 @@ from the Fourier analysis. This amounts to a total of 102 independent
 variables. 
 
 When performing the experiments, first we aligned and gathered all the
-hourly time series: NO\textsubscript{2}, O\textsubscript{3}, ECMWF and
+hourly time series: \no, O\textsubscript{3}, ECMWF and
 calendar variables.  Then we transformed the signal levels and then we
 added the lagged values and a seasonal time series with the main
 periods of the NO\textsubscript{2} time series.
 
 Once all this process is finalized, we train the following
-probabilistic models: quantile random forests (RF), $k$-nearest
-neighbors (KNN), quantile linear regression (QLR) and quantile
-gradient boosting (GB).  Figure \ref{figure:dataflow} shows the data
+probabilistic models: quantile random forests (QRF), $k$-nearest
+neighbors (QKNN), quantile linear regression (QLR) and quantile
+gradient boosting (QGB).  Figure \ref{figure:dataflow} shows the data
 flow in the experimental design. All the hyperparameters of the models
-have been estimated through grid search.  In Section \ref{sec:models}
+have been estimated through grid search on a validation set.  
+In Section \ref{sec:models}
 we provide more information on each of the models.
 
 Concerning cross-validation, there are several accepted methods to
@@ -282,7 +316,7 @@ with data from 2017. We will always test with predictions done at
 10:00, as this is the time the forecast is done in the operational
 setting, as the data is first available at that time.
 
-We want to forecast the full distribution of NO\textsubscript{2}
+We want to forecast the full distribution of \no
 levels for the next 60 hours and therefore we will train and evaluate
 the models for each hour (60 horizons).
 
@@ -294,19 +328,29 @@ from a small number of them.  It also helps estimating the upper tail
 of the distribution, in spite of the low probability for those values.
 
 We will evaluate the predicted 50 percentile through standard
-evaluation metrics (RMSE, MAE, bias and correlation), and the predicted
-distribution through the continuous ranked probability score (CRPS)
-\fxnote{Citation needed.}. We will perform this evaluation for
+evaluation metrics (RMSE, MAE and bias), and the predicted
+distribution through the continuous ranked probability score (CRPS).
+
+We will perform this evaluation for
 each of the models and each of the horizons.
 
 \subsection{Probabilistic Models}
 \label{sec:models}
 
 As stated above, we will compare four different probabilistic models,
-which are briefly described below for reference.
+which are briefly described below for reference. We will provide 
+alongside the models the abreviation we will use for each of them 
+throughout this article. Also we are adapting point-estimation 
+algorithms to their probabilistic counterparts. This allows 
+us to see the uncertainty these models have. Indeed, metrics like 
+RMSE and Bias are linked to the confidence of the models for 
+point estimation but the predicted CDF is much better at describing 
+it. This also increases the interpretability of those models.
+Therefore 
+the implementations we described can have applications beyond 
+this forecast exercise.
 
-
-\subsubsection{Quantile linear regression}
+\subsubsection{Quantile linear regression (QLR)}
 
 As shown in \cite{koenker_quantile_2001}, we can apply linear
 regression with a modified cost function in order to predict the
@@ -350,12 +394,12 @@ where
 with $\tau \in (0,1)$. Equation (\ref{eq:3}) represents the median
 when $\tau=0.5$ and the $\tau$-th quantile in any other case.
 
-We will train 5 linear regression models to predict the 5 deciles of
-the signal. As quantiles are calculated separately, we have the risk
+We will train 5 linear regression models to predict 5 percentiles of
+the signal. As percentiles are calculated separately, we have the risk
 of quantile crossing.  We will reorder the quantiles as explained in
 \cite{cross} to solve this problem.
 
-\subsubsection{$k$-nearest neighbors}
+\subsubsection{Quantile $k$-nearest neighbors (QKNN)}
 
 We will use the probabilistic $k$-nearest neighbors algorithm as
 described in \cite{quantileknnmangalova}.  This algorithm is based on
@@ -363,46 +407,35 @@ the standard $k$ nearest neighbor, where instead of calculating the
 mean of the targets of the $k$ nearest points to the input, it builds
 a distribution from the target of those neighbors.
 
-\subsubsection{Quantile random forests}
-
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=0.4\textwidth]{quantile_random_forest}
-%   \caption{Random Forest Weights on observations based on trained trees}
-%   \label{figure:qrandom}
-% \end{figure}
+\subsubsection{Quantile random forests (QRF)}
 
 Quantile random forests create probabilistic predictions out of the
 original observations. They work like the usual random forest, except
 that, in each tree, leafs do not contain a single value as a
 prediction but the target observations from the training set belonging
 to that
-leaf.% (see figure \ref{figure:qrandom}).\fxnote{Reconsider the
-  % usefulness of this figure.}
+leaf.
 
 Then predictions are calculated by selecting the leafs in each tree
 corresponding to the input features and combining the weighted
 histograms in each tree out of the target observations in those leafs.
 For more information refer to \cite{quantregforests}.
 
-\subsubsection{Gradient Boosted Trees}
+\subsubsection{Quantile Gradient Boosted Trees (QGB)}
 
 Tree boosting \cite{friedman_greedy_2001} is a recent and successful
 machine learning technique that consist on growing trees based on the
 compromise of a cost function and a regularization function. This cost
 function is usually used to forecast the mean of the signal. We will
 modify the cost function (im a similar way as in the quantile linear
-regression) to predict the quantiles of the target.
+regression) to predict the quantiles of the target. Also, we will use 
+the lightgbm implementation \cite{ke_lightgbm:_2017} which provides 
+lower training times and higher accuracy.
 
-Also, we could have also applied gradient boosted tree to the
-residuals of a linear regression, but as the model is already an
-additive model, we observe no improvement in doing so.
-
-We will train 5 gradient boosted trees models to predict the 5 deciles
-of the signal and we will solve quantile crossing with the technique
+We will train 5 gradient boosted trees models to predict 5 percentiles
+of the \no signal and we will solve quantile 
+crossing with the technique
 explained in \cite{cross}.
-
-\fxnote{Put more weight on the innovation w.r.t. the standard models.}
 
 \section{Results and discussion}
 \label{sec:results}
@@ -412,36 +445,32 @@ explained in \cite{cross}.
   \includegraphics[width=0.5\textwidth]{error_graph}
   \caption{\label{figure:errorGraph}
     Continuous ranked probability score, root mean squared
-    error, bias and correlation of the different models with respect to the
-    forecasting horizon and in average.%  (GB = Gradient Boosted Trees,
-    % KNN = K Nearest Neighbor, QLR = Linear Quantile Regression, RF =
-    % Quantile Random Forest)
+    error and bias of the different models with respect to the
+    forecasting horizon and in average.
   }
 \end{figure}
 
 \begin{table}[tbp]
   \centering
   \caption{\label{tab:determ}CRPS Error for the different methods at different
-    horizons.%  (GB = Gradient Boosted Trees,
-    % KNN = K Nearest Neighbor,
-    % QLR = Linear Quantile Regression,
-    % RF = Quantile Random Forest)
+    horizons.
   }
   \begin{tabular}{lrrrr}
     \toprule
     & \multicolumn{4}{c}{Model} \\ \cmidrule{2-5} 
-    horizon &    GB &   $k$NN &   QLR &    RF \\
+    horizon &    QGB &  QKNN &   QLR &   QRF \\
     \midrule
-    1     &  4.21 &  6.89 &  4.21 &  8.61 \\
-12    & 16.96 & 20.11 & 19.79 & 22.99 \\
-13    & 16.66 & 18.85 & 19.56 & 20.32 \\
-14    & 15.43 & 16.33 & 17.35 & 17.06 \\
-20    &  7.46 &  7.91 &  7.64 &  8.58 \\
-37    & 18.26 & 19.59 & 21.42 & 20.73 \\
-45    &  9.87 & 10.83 & 11.88 & 12.08 \\
-55    &  8.20 &  9.18 &  9.69 & 10.68 \\
+    1     &  4.21 &   4.14 &  4.21 &  4.30 \\
+12    & 16.96 &  18.04 & 19.79 & 17.93 \\
+13    & 16.66 &  17.32 & 19.56 & 17.58 \\
+14    & 15.43 &  15.57 & 17.35 & 15.96 \\
+20    &  7.46 &   7.48 &  7.64 &  7.50 \\
+37    & 18.26 &  18.75 & 21.42 & 19.02 \\
+45    &  9.87 &  10.39 & 11.88 & 11.05 \\
+55    &  8.20 &   8.15 &  9.69 &  8.67 \\
+
     \midrule
-    Average & 10.39 & 11.59 & 11.59 & 13.12 \\
+    Average & 10.39 &  10.57 & 11.59 & 10.73 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -454,11 +483,13 @@ explained in \cite{cross}.
 \end{figure}
 
 Figure \ref{figure:errorGraph} shows the different metrics for each
-model across all the horizons. First, we clearly see how gradient
+model across all the horizons. First, we clearly see how 
+quantile gradient
 boosted trees outperform the other models and displays better scores
 for all metrics.
 
-Secondly, we can observe how quantile random forests and $k$-nearest
+Secondly, we can observe how quantile random forests and 
+quantile $k$-nearest
 neighbors underperform compared to the other models, showing a bias
 which is clearly higher compared to the others.  The main reason for
 this is the high linear dependence of the data. This also explains
@@ -467,17 +498,20 @@ model underperforms when compared to gradient boosted trees, as it is
 not able to learn the non-linear relationship between the predictors
 and the target.
 
-As stated earlier, the NO\textsubscript{2} levels follow a lognormal
+As stated earlier, the \no levels follow a lognormal
 distribution and it seems that it is better modelled with a
 multiplicative model (different causes multiply the level of
-pollution), therefore the logarithm of the NO\textsubscript{2} levels
-is better forecast with an additive model. This is the reason why
-gradient boosted trees outperform the other models: it can naturally
+pollution), therefore the logarithm of the \no levels
+are better forecast with an additive model. 
+This is the reason why
+quantile gradient boosted trees outperform 
+the other models: it can naturally
 add the nonlinear effects.
 
 Table \ref{tab:determ} displays the CRPS of the different models at
 some selected prediction horizons. The table shows again the good
-performance of the gradient boosted trees model for CRPS.
+performance of the quantile 
+gradient boosted trees model for CRPS.
 
 For probabilistic models, CRPS is a good summary of the performance of
 the models. Notwithstanding, the reliability and sharpness graphs are
@@ -485,9 +519,10 @@ known to be useful at estimating how the observed values are
 positioned in the distributions.  Figure \ref{figure:rel_sharp}
 features the reliability and sharpness of the different models.
 
-The sharpness curve shows that random forests and $k$-nearest
+The sharpness curve shows that quantile random forests 
+and quantile $k$-nearest
 neighbors tend to underestimate the levels of
-NO\textsubscript{2}. This is clear in the sharpness curve for the
+\no. This is clear in the sharpness curve for the
 upper percentiles. The observed values of those percentiles are
 usually noticeably higher than the forecast values. This means that,
 too many times, the observed values are in the upper percentiles of
@@ -499,9 +534,8 @@ distributions seem more balanced but display high values at both sides
 of the sharpness curve.  If we consider the distribution to be a
 gaussian distribution, this means the forecast distributions tend to
 have a too small standard deviation and are too narrow. Therefore, the
-forecast probability of some levels of NO\textsubscript{2} is too
-small compared to the observed one.  This could be improved by
-forecasting more percentiles instead of only 5.
+forecast probability of some levels of \no is too
+small compared to the observed one.
 
 \subsection{Probabilistic forecast of linear regression residuals}
 
@@ -516,24 +550,28 @@ forecasting more percentiles instead of only 5.
 
 As stated before, the results show a high linear dependence between
 the input predictors and the target. Therefore we had poorer results
-for $k$-nearest neighbors and random forests than for the linear
+for quantile $k$-nearest neighbors and quantile random forests 
+than for the linear
 quantile model. However, we believe we can improve the results by
 combining both models.
 
 We decided to train a linear regressor which predicts the
-NO\textsubscript{2} values and then use the quantile random forest and
+\no values and then use the quantile random forest and quantile
 $k$-nearest neighbor to predict the full distribution of the residuals
-of that linear regression.
+of that linear regression. We abbreviate both models respectively with
+QRFL and QKNNL.
 
 We obtained much better results and we brought a real improvement to
 the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
 metrics with the new models.  We can see the comparison with the
-original gradient boosted tree and quantile linear regression models.
+original gradient boosted tree (QGB) and 
+quantile linear regression (QLR) models. Due to the additive 
+nature of the gradient boosted trees method, this technique does not 
+bring improvement to this type of model.
 
-We see the combined models still underperform against gradient boosted
+Also, we still see the combined models 
+underperforming against quantile gradient boosted
 trees.
-
-
 
 \subsection{Comparison of the prediction on selected days}
 
@@ -548,93 +586,95 @@ trees.
 \begin{figure*}
   \centering
   \includegraphics[width=0.75\textwidth]{evoday2}
-  \caption{Forecasts of the four models on November, 21st 2017.  \fxnote{Replace the titles of each graph with just the name
-      of the model}}
+  \caption{Forecasts of the four models on November, 21st 2017.}
   \label{figure:evoday2} 
 \end{figure*}
 
 As an example of the capabilities of the four models, Figure
 \ref{figure:evoday1} and \ref{figure:evoday2} compare their forecasts
-in 2 different days: one day with low NO\textsubscript{2} levels and
+in 2 different days: one day with low \no levels and
 another with levels above the health threshold of 180 $\mu gm^{-3}$.
 As stated earlier, the predictions were done at 10:00 AM and we
 forecast the distribution of the concentration for the next 60 hours.
 
-We see more clearly in those examples how the random forests tend to
+We see more clearly in those examples how the quantile random forests 
+tend to
 underestimate the target and misses to build a meaningful distribution
-as it is not fitting well the data. On the other hand, $k$-nearest
+as it is not fitting well the data. On the other hand, 
+quantile $k$-nearest
 neighbors does a better job but the upper percentiles of the
-distribution are too high.  QLR and GB fit better the data with GB
-distribution making a better job, specially on high values.
-\fxnote{Uniformize the naming of the models throughout the
-  paper. It is ok to use QLR, RF, $k$NN and GB.}
+distribution are too high.  Finally we ca visualize how quantile linear 
+regression and quantile gradient boosted trees fit better the 
+data with quantile gradient boosted trees outperforming
+ on high values.
 
 
 \subsection{Detection of NO2 level peaks}
 
 One of the main reasons we have performed a probabilistic forecast 
-is to be able to detect the probability of NO2 to be above a certain 
+is to be able to detect the probability of NO2 being above a certain 
 threshold. So we will evaluate as well our models to check how 
 good are they to detect those peaks. 
-We can consider that above 180ug/m3, the levels of NO2 present 
+We can consider that above 180 $\mu gm^{-3}$, 
+the levels of NO2 present 
 are dangerous for health and we should avoid being exposed to 
 such levels for a prolonged time. 
+We will consider a \no peak is forecast when the 
+probability of reaching above this limit is higher 
+than 50\%.
 
-We can convert our probabilistic models into classifiers by estimating 
-the probability of the NO2 levels being above the threshold. 
-Usually authorities perform an action to remediate this situation:
-in Madrid, traffic is slowed down or even stopped, cars are forbidden 
-entrance in the city and this could last for several days. This has 
-a serious repercussion in the city and can not occur too often.
-Therefore, the probability triggering an action needs to be high and 
-the number of actions needs to be limited.
-
-In the last year of our training set, there were 10 days when the 
-levels of NO2 reach above the threshold, so we will choose a probability in 
-our train set.
+As noted before, there's usually a high cost on performing preventive
+measures against pollution. This has some consequences while 
+evaluating our models. We must minimize the number of false 
+positives and secondly metrics like the ROC curve are not valid as 
+they are based on a compromise between true positives 
+and false positives,
+but in this case the high cost of a false positive does not allow 
+this compromise to happen. Table \ref{table:classif_hig} shows 
+the true positives and false positives of each model. We see again the 
+superior results of quantile gradient boosted trees against the other 
+models.
 
 \begin{table}[tbp]
   \centering
   \caption{
-    Detection of hours whose NO2 levels are above 180
+    Detection of \no pollution peaks (above 180 $\mu gm^{-3}$)
+    \label{table:classif_hig}
   }
   \begin{tabular}{lr|rr|rr|rr|rr}
     \toprule 
     \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNN} & \multicolumn{2}{c}{QRF}   \\
     horizon &  above &  + &  - &  + &  - &  + &  - &  + &  - \\
     \midrule
-    7  &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-8  &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-9  &                11 &              3 &                   - &              1 &                   -1 &              - &                    - &             - &                   - \\
-10 &                19 &              3 &                   - &              2 &                   - &              - &                    - &             - &                   - \\
-11 &                16 &              4 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-12 &                10 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-13 &                 4 &             - &                   -1 &             - &                   - &              - &                    - &             - &                   - \\
-31 &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-32 &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-33 &                11 &              3 &                   - &             - &                   -1 &              - &                    - &             - &                   - \\
-34 &                19 &              3 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-35 &                16 &              2 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-36 &                10 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-37 &                 4 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-55 &                 2 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-56 &                 5 &             - &                   - &             - &                   - &              - &                    - &             - &                   - \\
-57 &                11 &              1 &                   - &             - &                   - &              - &                    - &             - &                   - \\
-58 &                19 &              2 &                   - &             - &                   - &              - &                    - &             - &                   - \\
+    7  & 2 &- &   - &- &   - & - &    - &- &   - \\
+    8  & 5 &- &   - &- &   - & - &    - &- &   - \\
+    9  &11 & 3 &   - & 1 &   1 & - &    - &- &   - \\
+    10 &19 & 3 &   - & 2 &   - & - &    - &- &   - \\
+    11 &16 & 4 &   - &- &   - & - &    - &- &   - \\
+    12 &10 & 1 &   - &- &   - & - &    - &- &   - \\
+    13 & 4 &- &   1 &- &   - & - &    - &- &   - \\
+    31 & 2 &- &   - &- &   - & - &    - &- &   - \\
+    32 & 5 &- &   - &- &   - & - &    - &- &   - \\
+    33 &11 & 3 &   - &- &   -1 & - &    - &- &   - \\
+    34 &19 & 3 &   - &- &   - & - &    - &- &   - \\
+    35 &16 & 2 &   - &- &   - & - &    - &- &   - \\
+    36 &10 & 1 &   - &- &   - & - &    - &- &   - \\
+    37 & 4 &- &   - &- &   - & - &    - &- &   - \\
+    55 & 2 &- &   - &- &   - & - &    - &- &   - \\
+    56 & 5 &- &   - &- &   - & - &    - &- &   - \\
+    57 &11 & 1 &   - &- &   - & - &    - &- &   - \\
+    58 &19 & 2 &   - &- &   - & - &    - &- &   - \\
     \bottomrule
     \end{tabular}
 \end{table}
-
-
-
-
 
 \section{Conclusions}
 \label{sec:concl}
 
 After extracting and processing the data from one of the pollution
 stations in Madrid, we have compared 4 different models (quantile
-random forests, quantile linear regression, gradient boosted trees and
+random forests, quantile linear regression, quantile gradient boosted 
+trees and
 $k$-nearest neighbors) to build a probabilistic forecast of the levels
 of NO\textsubscript{2} for up to 60 hours into the future. We have
 evaluated our models through the forecast quantile 50 and the forecast
