@@ -9,7 +9,9 @@
 \usepackage{xspace}
 \usepackage{booktabs}
 \usepackage[draft,inline,nomargin]{fixme}
-\usepackage{makecell} 
+\usepackage{makecell}
+\usepackage[columnwise]{lineno}
+
 
 \journal{Environment International}
 
@@ -18,6 +20,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
+\pagewiselinenumbers
 
 % Macro para escribir NO$_2$
 \newcommand{\no}{NO\textsubscript{2}\xspace}
@@ -36,50 +39,52 @@
   Educaci\'on a Distancia --- UNED\\c/ Juan del Rosal, 16, Madrid, Spain}
 \ead{jlaznarte@dia.uned.es}
 
-% \fntext[myfootnote]{This work has been partially funded by Ministerio
-%   de Econom\'ia y Competitividad, Gobierno de Espa\~na, through a
-%   \emph{Ram\'on y Cajal} grant % awarded to Dr Aznarte
-%   (reference: RYC-2012-11984).}
-
 
 \begin{abstract}
-Air quality is an increasingly alarming issue in cities around the 
-world and thus there is an urgent need to reliably forecast high 
-concentration episodes of certain pollutants in the air. In this 
-sense, NO2 is one of the most worrisome pollutants, as it has been 
-proven its direct implication in a variety of serious health 
-affections. In some cities, high concentration episodes for \no 
-are dealt with by authorities through traffic restriction measures, 
-amongst others, which are activated when air quality deteriorates 
-beyond certain thresholds.
+  % Air quality is an increasingly alarming issue in cities around the
+  % world and thus there is an urgent need to reliably forecast high
+  % concentration episodes of certain pollutants in the air. In this
+  % sense, NO2 is one of the most worrisome pollutants, as it has been
+  % proven its direct implication in a variety of serious health
+  % affections. In some cities, high concentration episodes for \no are
+  % dealt with by authorities through traffic restriction measures,
+  % amongst others, which are activated when air quality deteriorates
+  % beyond certain thresholds.
 
-Probabilistic forecasting (as opposed to deterministic or 
-point forecasting, which is designed to predict a single 
-expected value), allows for the prediction of the future 
-full distribution function for any magnitude. In the case of 
-NO2 forecasting, this is a key feature which allows for the 
-calculation of the future probabilities of exceeding the protective 
-thresholds set by the authorities, and further cost-effectiveness 
-analysis. Probabilistic forecast is also specially useful to detect 
-pollution peaks, which are extremely rare events.
+  High concentrations of \no in urban settings, whose direct
+  implication in a variety of serious health affections is widely
+  accepted, represent an alarming issue around the world. In some
+  cities, high concentration episodes for \no are dealt with by
+  authorities through traffic restrictions which are activated when
+  air quality deteriorates beyond certain thresholds. Forecasting \no
+  concentrations becomes thus a necessity both for decision makers and
+  the general public.
 
-In this study, we have extended previous research on forecasting 
-future NO2 concentrations with the implementation of four 
-different probabilistic predictive models: a probabilistic 
-version of k-nearest neighbors, quantile random forests, 
-linear quantile regression and quantile gradient boosted trees. 
-We have tested those models against a wide set of forecasting 
-horizons (up to 60 hours), and we have studied the quality of 
-these forecasts.
+  Probabilistic forecasting % (as opposed to deterministic or point
+  % forecasting, which is designed to predict a single expected value),
+  allows for the prediction of the expected distribution function for
+  any magnitude. In the case of \no, this is a key feature which
+  allows for the calculation of the future probabilities of exceeding
+  the protective thresholds as well as to derive cost-effectiveness
+  analysis. Probabilistic forecasting is also specially useful to
+  detect pollution peaks, which usually are rare events.
 
-Furthermore, we have modified those models by applying 
-semi-parametric approach to the output of the original models. 
-In our experiments, quantile gradient boosted 
-trees is the best performing model as it provides the best 
-results for both the expected value and the full 
-distribution. Finally, gradient boosted 
-trees proves itself to be the best at detecting pollution peaks
-with almost no false positives.
+  In this study, we have % extended previous research on forecasting
+  % future \no concentrations with the implementation of
+  considered four different probabilistic predictive models: a
+  probabilistic version of $k$-nearest neighbors, quantile random
+  forests, linear quantile regression and quantile gradient boosted
+  trees.  We have used those models to predict \no concentrations for
+  a wide set of forecasting horizons% (up
+  % to 60 hours)
+  , and we have studied the quality of the forecasts.  We have also
+  modified those models by applying a semi-parametric statistical
+  approach to the output of the original models.  In our experiments,
+  quantile gradient boosted trees is the best performing model as it
+  provides the best results for both the expected value and the full
+  distribution. Furthermore, we show how gradient boosted trees obtain
+  the best results at detecting pollution peaks with almost no false
+  positives.
 \end{abstract}
 
 \begin{keyword}
@@ -222,7 +227,7 @@ and the empirical CDF of the observation.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.4\textwidth]{histo_variance}
+  \includegraphics[width=0.5\textwidth]{histo_variance}
   \caption{\label{figure:histo_variance}Distribution of logarithmic
     NO\textsubscript{2} and Distribution of NO\textsubscript{2}
     per hour.}
@@ -275,7 +280,7 @@ every 11-13 hours up to 9 days before.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.25\textwidth]{no2vso3}
+  \includegraphics[width=0.35\textwidth]{no2vso3}
   \label{figure:no2vso3}
   \caption{Levels of $O_3$ vs levels os $NO_2$}
 \end{figure}
@@ -677,10 +682,10 @@ models.
     Detection of \no pollution peaks (above 180 $\mu gm^{-3}$)
     \label{table:classif_hig}
   }
-  \begin{tabular}{lr|rr|rr|rr|rr}
+  \begin{tabular}{lrrrrrrrrr}
     \toprule 
     \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNN} & \multicolumn{2}{c}{QRF}   \\
-    horizon &  above &  + &  - &  + &  - &  + &  - &  + &  - \\
+    h & peaks &  TP &  FP &  TP &  FP &  TP &  FP &  TP &  FP\\
     \midrule
     7  & 2 &- &   - &- &   - & - &    - &- &   - \\
     8  & 5 &- &   - &- &   - & - &    - &- &   - \\
@@ -691,7 +696,7 @@ models.
     13 & 4 &- &   1 &- &   - & - &    - &- &   - \\
     31 & 2 &- &   - &- &   - & - &    - &- &   - \\
     32 & 5 &- &   - &- &   - & - &    - &- &   - \\
-    33 &11 & 3 &   - &- &   -1 & - &    - &- &   - \\
+    33 &11 & 3 &   - &- &   1 & - &    - &- &   - \\
     34 &19 & 3 &   - &- &   - & - &    - &- &   - \\
     35 &16 & 2 &   - &- &   - & - &    - &- &   - \\
     36 &10 & 1 &   - &- &   - & - &    - &- &   - \\
@@ -724,23 +729,22 @@ nonlinear dependence between target and features have lead to better
 results for the gradient boosted trees which has outperformed all the
 other models in all metrics.
 
-%However, we have shown how quantile random forest and quantile
-%$k$-nearest neighbors could be used to improve the results of a linear
-%model when nested to model the full distribution of the residuals of a
-%linear regression. Those models, specially the $k$-nearest neighbor 
-%are easier to train, so
-%they become worthy alternatives to the gradient boosted trees.
+However, we have shown how quantile random forest and quantile
+$k$-nearest neighbors could be used to improve the results of a linear
+model when nested to model the full distribution of the residuals of a
+linear regression. Those models, specially the $k$-nearest neighbor
+are easier to train, so they become worthy alternatives to the
+gradient boosted trees.
 
-In sum, we have tested six alternative models to produce 
-probabilistic
-forecasts for \no, and we have compared them through different metrics.
-Also, we see how quantile gradient boosted trees are able to detect 
-pollution peaks beforehand with almost no false positive. This 
-inspiring work could be enhanced by improving the quality of the 
-probabilistic forecast either by using new models (neural networks) 
-or extracting better features as input of our models. 
+In sum, we have tested six alternative models to produce probabilistic
+forecasts for \no, and we have compared them through different
+metrics.  Also, we see how quantile gradient boosted trees are able to
+detect pollution peaks beforehand with almost no false positive. This
+inspiring work could be enhanced by improving the quality of the
+probabilistic forecast either by using new models (neural networks) or
+extracting better features as input of our models.
 
-\section{References}
+%\section{References}
 
 \bibliography{refs}
 
