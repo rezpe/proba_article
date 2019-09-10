@@ -1,6 +1,6 @@
 \documentclass[a4paper,twocolumn,5p]{elsarticle}
 
-\usepackage{hyperref}
+\usepackage[draft]{hyperref}
 %\usepackage{lineno}
 %\modulolinenumbers[5]
 
@@ -11,7 +11,8 @@
 \usepackage[draft,inline,nomargin]{fixme}
 \usepackage{makecell}
 \usepackage[columnwise]{lineno}
-
+\usepackage{natbib}
+\DeclareRobustCommand{\citeext}[1]{\citeauthor{#1}~\cite{#1}}
 
 \journal{Environment International}
 
@@ -44,47 +45,47 @@
   % Air quality is an increasingly alarming issue in cities around the
   % world and thus there is an urgent need to reliably forecast high
   % concentration episodes of certain pollutants in the air. In this
-  % sense, NO2 is one of the most worrisome pollutants, as it has been
+  % sense, \no is one of the most worrisome pollutants, as it has been
   % proven its direct implication in a variety of serious health
   % affections. In some cities, high concentration episodes for \no are
   % dealt with by authorities through traffic restriction measures,
   % amongst others, which are activated when air quality deteriorates
   % beyond certain thresholds.
 
-  High concentrations of \no in urban settings, whose direct
+  High concentrations of pollutants in the atmosphere, whose direct
   implication in a variety of serious health affections is widely
   accepted, represent an alarming issue around the world. In some
   cities, high concentration episodes for \no are dealt with by
   authorities through traffic restrictions which are activated when
-  air quality deteriorates beyond certain thresholds. Forecasting \no
-  concentrations becomes thus a necessity both for decision makers and
-  the general public.
+  air quality deteriorates beyond certain thresholds. Forecasting
+  pollutant concentrations becomes thus a necessity both for decision
+  makers and the general public.
 
-  Probabilistic forecasting % (as opposed to deterministic or point
+  Probabilistic forecasting is an approach that % (as opposed to deterministic or point
   % forecasting, which is designed to predict a single expected value),
   allows for the prediction of the expected distribution function for
   any magnitude. In the case of \no, this is a key feature which
   allows for the calculation of the future probabilities of exceeding
   the protective thresholds as well as to derive cost-effectiveness
-  analysis. Probabilistic forecasting is also specially useful to
+  analysis or to %. Probabilistic forecasting is also specially useful to
   detect pollution peaks, which usually are rare events.
 
   In this study, we have % extended previous research on forecasting
   % future \no concentrations with the implementation of
-  considered four different probabilistic predictive models: a
+  implemented four different probabilistic predictive models: a
   probabilistic version of $k$-nearest neighbors, quantile random
   forests, linear quantile regression and quantile gradient boosted
-  trees.  We have used those models to predict \no concentrations for
-  a wide set of forecasting horizons% (up
+  trees.  We have used those models to predict \no concentrations in a
+  precise urban location
+  % a wide set of forecasting horizons (up
   % to 60 hours)
   , and we have studied the quality of the forecasts.  We have also
-  modified those models by applying a semi-parametric statistical
-  approach to the output of the original models.  In our experiments,
-  quantile gradient boosted trees is the best performing model as it
-  provides the best results for both the expected value and the full
-  distribution. Furthermore, we show how gradient boosted trees obtain
-  the best results at detecting pollution peaks with almost no false
-  positives.
+  improved some of those models by applying a novel nested scheme to
+  the output of a linear model. In our experiments, quantile gradient
+  boosted trees is the best performing model as it provides the best
+  results for both the expected value and the forecast full
+  distribution. Furthermore, we show how this approach can be used to
+  detect pollution peaks with almost no false positives.
 \end{abstract}
 
 \begin{keyword}
@@ -99,86 +100,91 @@ probabilistic forecasting \sep air quality \sep quantile regression
 \section{Introduction }
 \label{sec:intro}
 
-
-Pollution has become an increasing topic in cities due to their
-adverse effects on health and their increasing levels mainly due to
-human activity (traffic, heating systems, ...). Forecasting pollution
-levels is therefore needed in order to take preventive measures
-against it. More specifically, detecting pollution peaks beforehand
-could give cities enough time to take effective measures.
+Pollution has become a worrying issue in cities due to its adverse
+effects on health and the increase in pollutant concentrations, mainly
+due to human activity (traffic, heating systems\ldots). In order to
+take preventive steps to maintain air quality, forecasting the
+evolution of pollution levels becomes a useful tool for decision
+makers: detecting pollution peaks beforehand could give cities enough
+time to take and communicate effective measures.
 
 Multiple research papers have focused on this issue and have dealt
-with the forecast of pollutants level. Bai et al. \cite{bai_air_2018}
-describes the latest state of the art in this exercise and describes 
-a diverse range of solutions to this problem.
+with the prediction of air quality. Bai et al. \cite{bai_air_2018}
+describes the state of the art in this exercise and collects a range
+of diverse solutions applied to this problem.
 
-However, performing a point-estimation does not provide enough 
-information about the likelihood of the pollutant levels 
-reaching a certain 
-threshold. Indeed, we have an estimate but we do not have a
-description of the confidence of the model nor the uncertainty 
-in the predictions. Therefore, it is difficult to estimate the 
+However, the prediction of the expected value of pollution
+concentrations through point-forecasting does not provide enough
+information about the likelihood of the pollutant levels reaching a
+certain threshold. Indeed, we have an estimate but we usually do not
+have a description of the confidence of the model nor the uncertainty
+in the predictions. Therefore, it is difficult to estimate the
 probability of the pollutant reaching above a certain threshold.
 
-The reason this probability estimation is so important is because 
-the measures taken by cities to limit pollution (for example,
-limiting traffic) impact the 
-economic activity of the city and prove themselves to be quite
- unpopular. 
-Therefore, city halls need to check the confidence in the 
-prediction to engage those preventive measures.
+The reason this probability estimation is so important is because the
+measures taken by cities to limit pollution (for example, limiting
+traffic) impact the daily routines of citizens and prove themselves to
+be quite unpopular.  Therefore, local governments need to have an
+estimation of the confidence in the prediction to safely engage in
+those preventive measures.
 
-Also the use of a classifier (above or below threshold) can not 
-be used. First, we would need a classifier per threshold, but 
-more importantly, pollution peak is an extremely rare event and 
-classifiers would have to be trained with high imbalanced datasets.
+% Also the use of a classifier (above or below threshold) can not 
+% be used. First, we would need a classifier per threshold, but 
+% more importantly, pollution peak is an extremely rare event and 
+% classifiers would have to be trained with high imbalanced datasets.
 
-That's why as noted by Hothorn et al. \cite{hothorn_conditional_2014},
-the real objective in a regression analysis is to find the conditional
-distribution of the target variable: in our case, the full 
-distribution of the levels of the pollutants. Indeed, the full
+As noted by Hothorn \emph{et al.} \cite{hothorn_conditional_2014}, the
+real objective in a regression analysis is to find the conditional
+distribution of the target variable: in our case, the full
+distribution of the concentration of the pollutants. Indeed, this full
 distribution gives an idea of the uncertainty of our predictions and
 can be useful to forecast the probability of the signal being above a
-certain health threshold.  For example, \no pollutant presence in
-the air is said to be harmful from 180 $\mu g / m^3$. 
+certain threshold. For example, in the city of Madrid, \no
+concentrations in the air are considered to be harmful from 180
+$\mu g / m^3$.
 
-Previous research \cite{proba_aznarte} has already focused on
-probabilistic forecasting for the \no pollutant levels.
+Previous research on the same dataset has already shown the usefulness
+of probabilistic forecasting for \no levels \cite{proba_aznarte},
+establishing the advantages of the approach and focusing on 1
+hour-ahead predictions with a single model (quantile random
+forests). We hereby extend that work by implementing other models
+(quantile linear regression, quantile gradient boosted trees % , quantile
+% random forests
+and quantile $k$-nearest neighbors) and using them for
+a wide set of forecasting horizons (up to 60 hours). Inspiration is
+drawn on some of the best approaches from the GEFCom Competition
+\cite{mangalova_k-nearest_2016,hong_probabilistic_2016}.
 
-This work proved the advantage of probabilistic forecast and focused
-on the horizon 1 (forecasting levels 1 hour before) and only used 1
-type of model (Quantile Random Forest). We will extend this work by
-testing more models (Quantile linear regression, Quantile Gradient 
-Boosted
-trees, quantile random forests and quantile $k$-nearest neighbors) 
-and for different horizons (up to 60 hours
-before).  We will inspire some of our work on the techniques displayed
-during the GEFCom Competition \cite{mangalova_k-nearest_2016}
-\cite{hong_probabilistic_2016}.
+Furthermore, improving over these approaches, we also present a novel
+method to apply statistical inference to the output of the
+models. This method aknowledges the fact that the results show linear
+dependences between the predictors and the target, which slightly
+benefits linear models over nonlinear ones. By combining a linear
+model with nonlinear probabilistic modelling of its residuals we
+obtain optimized versions of the standard models.
+% This way, we are
+% converting our forecasting method into a semi-parametric model.
 
-Also we will improve the models by applying a statistical
-inference to the output of the models. This way, we are converting our
-forecasting method into a semi-parametric model.
-
-Finally, we will estimate how good are the models at predicting 
-pollution peaks for the different horizons.
+Finally, in order to showcase one of the applications of probabilistic
+forecasts, we tackle the prediction of \no peaks for the different
+horizons, and compare the performance of the proposed models on this
+task. 
 
 \section{Probabilistic forecasting with quantile regression}
 \label{sec:probForec}
 
-The prediction from most regression models is a
-point estimate of the conditional mean of a dependent variable, or
-response, given a set of independent variables or predictors. However,
-the conditional mean does not provide a complete summary
-of the distribution, so in order to estimate the associated
-uncertainty, quantiles are in order. The 0.5 quantile (i.e., the
-median) can serve as a measure of the center, and the 0.9 quantile
-marks the value of the response below which reside the 90\% of the
-predicted points. Recent advances in computing have inducted the
-development of regression models for predicting given quantiles of the
-conditional distribution. The technique is called quantile regression
-(QR) and was first proposed by Koenker in 1978
-\cite{koenker_quantile_2001} based on the intuitions of the
+The prediction from most regression models is a point estimate of the
+conditional mean of a dependent variable, or response, given a set of
+independent variables or predictors. However, the conditional mean
+does not provide a complete summary of the distribution, so in order
+to estimate the associated uncertainty, quantiles are in order. The
+0.5 quantile (i.e., the median) can serve as a measure of the center,
+and the 0.9 quantile marks the value of the response below which
+reside the 90\% of the predicted points. Recent advances in computing
+have inducted the development of regression models for predicting
+given quantiles of the conditional distribution. The technique is
+called quantile regression (QR) and was first proposed by Koenker in
+1978 \cite{koenker_quantile_2001} based on the intuitions of the
 astronomer and polymath Rudjer Boscovich in the 18th
 century. Elaborating from the same concept of estimating conditional
 quantiles from different perspectives, several statistical and CI
@@ -189,15 +195,15 @@ networks, support vector machines, random forests etc.
 Quantile regression has gained an increasing attention from very
 different scientific disciplines \cite{yu_quantile_2003}, including
 financial and economic applications \cite{ben_rejeb_financial_2016},
-medical applications \cite{jang_quantile_2018}, wind power
-forecasting \cite{wan_direct_2017}, electric load forecasting
+medical applications \cite{jang_quantile_2018}, wind power forecasting
+\cite{wan_direct_2017}, electric load forecasting
 \cite{lebotsa_short_2018}, environmental modelling
 \cite{cade_gentle_2003} and meteorological modelling
-\cite{baur_modelling_2004} (these references are just
-examples and the list is not exhaustive). To our knowledge, despite
-its success in other areas, quantile regression has not been applied
-in the framework of air quality , with the exception of
- \cite{martinezsilva_forecasting_2016}.
+\cite{baur_modelling_2004} (these references are just examples and the
+list is not exhaustive). To our knowledge, despite its success in
+other areas, quantile regression has not been applied in the framework
+of air quality , with the exception of
+\cite{martinezsilva_forecasting_2016}.
 
 Thus, as we can estimate an arbitrary quantile and forecast its
 values, we can also estimate the full conditional distribution, which
@@ -205,20 +211,19 @@ will entail us to the results presented in Section \ref{sec:results}.
 
 Among the growing array of methods that allow to estimate and forecast
 data-driven conditional quantiles, in this study we have chosen to
-compare linear regression,  $k$-nearest neighbors,
- random forests and gradient boosted trees. We took
-the point-estimate version of those models and converted them 
-to their quantile or probabilistic counterparts. We can therefore 
-compare each model not only on the accuracy of their point estimation
-but on the confidence of each model.
+compare linear regression, $k$-nearest neighbors, random forests and
+gradient boosted trees. We took the point-estimate version of those
+models and converted them to their quantile or probabilistic
+counterparts. We can therefore compare each model not only on the
+accuracy of their point estimation but on the confidence of each
+model.
 
-We will compare the different algorithms through the RMSE, MAE 
-and bias for the quantile 50 and 
-the CRPS metric for the forecast distribution.
-As described by Gneiting et al. \cite{gneiting_probabilistic_2014},
-CRPS is a measure of the squared difference between the 
-forecast cumulative distribution function (CDF) 
-and the empirical CDF of the observation.
+We will compare the different algorithms through the RMSE, MAE and
+bias for the quantile 50 and the CRPS metric for the forecast
+distribution.  As described by Gneiting et
+al. \cite{gneiting_probabilistic_2014}, CRPS is a measure of the
+squared difference between the forecast cumulative distribution
+function (CDF) and the empirical CDF of the observation.
 
 \section{Data description and experimental design}
 
@@ -234,11 +239,9 @@ and the empirical CDF of the observation.
 \end{figure}
 
 The city of Madrid has an air quality monitoring system composed by 24
-stations which capture hourly data for NO2.  For this study, we 
-have selected one of
-the stations with higher average leves: 
-Escuelas Aguirre station (code
-28079008).
+stations which capture hourly data for \no.  For this study, we have
+selected one of the stations with higher average leves: Escuelas
+Aguirre station (code 28079008).
 
 As we can see in \ref{figure:histo_variance}, the shape of the histogram
 approaches the one from a lognormal distribution and therefore we
@@ -280,9 +283,9 @@ every 11-13 hours up to 9 days before.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.35\textwidth]{no2vso3}
+  \includegraphics[width=0.4\textwidth]{no2vso3}
   \label{figure:no2vso3}
-  \caption{Levels of $O_3$ vs levels os $NO_2$}
+  \caption{Dispersion of levels of $O_3$ vs. levels of $NO_2$.}
 \end{figure}
 
 The same station that records Nitrogen dioxide also records the levels
@@ -483,7 +486,7 @@ explained in \cite{cross}.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{error_graph}
+  \includegraphics[width=0.48\textwidth]{error_graph}
   \caption{\label{figure:errorGraph}
     Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
@@ -493,13 +496,12 @@ explained in \cite{cross}.
 
 \begin{table}[tbp]
   \centering
-  \caption{\label{tab:determ}CRPS Error for the different methods at different
-    horizons.
-  }
+  \caption{\label{tab:determ}CRPS Error for the proposed models at different
+    horizons.}
   \begin{tabular}{lrrrr}
     \toprule
     & \multicolumn{4}{c}{Model} \\ \cmidrule{2-5} 
-    horizon &    QGB &  QKNN &   QLR &   QRF \\
+    h &    QGB &  QKNN &   QLR &   QRF \\
     \midrule
     1     &  4.21 &   4.14 &  4.21 &  4.30 \\
 12    & 16.96 &  18.04 & 19.79 & 17.93 \\
@@ -511,16 +513,17 @@ explained in \cite{cross}.
 55    &  8.20 &   8.15 &  9.69 &  8.67 \\
 
     \midrule
-    Average & 10.39 &  10.57 & 11.59 & 10.73 \\
+    average & 10.39 &  10.57 & 11.59 & 10.73 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{reliability_sharpness}
+  \includegraphics[width=0.45\textwidth]{reliability_sharpness}
   \caption{\label{figure:rel_sharp}Average reliability and sharpness
-    of the different models across all horizons.}
+    of the different models across all horizons. The dim blue lines
+    correspond to the different horizons. }
 \end{figure}
 
 Figure \ref{figure:errorGraph} shows the different metrics for each
@@ -582,19 +585,18 @@ small compared to the observed one.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{errorGraph_rfl_knnl}
+  \includegraphics[width=0.48\textwidth]{errorGraph_rfl_knnl}
   \caption{Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
     forecasting horizon and in average.}
   \label{figure:errorGraph_rfl}
 \end{figure}
 
-As stated before, the results show a high linear dependence between
-the input predictors and the target. Therefore we had poorer results
-for quantile $k$-nearest neighbors and quantile random forests 
-than for the linear
-quantile model. However, we believe we can improve the results by
-combining both models.
+As stated before, the results show linear dependences between the
+input predictors and the target. This fact explains why we obtained
+poorer results for quantile $k$-nearest neighbors and quantile random
+forests than for the linear quantile model. However, we can improve
+the results by combining both approaches.
 
 We decided to train a linear regressor which predicts the
 \no values and then use the quantile random forest and quantile
@@ -604,15 +606,16 @@ QRFL and QKNNL.
 
 We obtained much better results and we brought a real improvement to
 the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
-metrics with the new models.  We can see the comparison with the
-original gradient boosted tree (QGB) and 
-quantile linear regression (QLR) models. Due to the additive 
-nature of the gradient boosted trees method, this technique does not 
-bring improvement to this type of model.
+metrics with the new models, where we can see the comparison with the
+original gradient boosted tree (QGB) and quantile linear regression
+(QLR) models. Due to the additive nature of the gradient boosted trees
+method, this technique does not bring improvement to this type of
+model.
 
-Also, we still see the combined models 
-underperforming against quantile gradient boosted
-trees.
+Also, we still see the combined models underperforming against
+quantile gradient boosted trees, which keeps the first position in all
+the error measures. The additive nature of QGB is behind these
+results. 
 
 \subsection{Comparison of the prediction on selected days}
 
@@ -650,39 +653,46 @@ data with quantile gradient boosted trees outperforming
  on high values.
 
 
-\subsection{Detection of NO2 level peaks}
+\subsection{Forecasting \no concentration peaks}
 
-One of the main reasons we have performed a probabilistic forecast 
-is to be able to detect the probability of NO2 being above a certain 
-threshold. So we will evaluate as well our models to check how 
-good are they to detect those peaks. 
-We can consider that above 180 $\mu gm^{-3}$, 
-the levels of NO2 present 
-are dangerous for health and we should avoid being exposed to 
-such levels for a prolonged time. 
-We will consider a \no peak is forecast when the 
-probability of reaching above this limit is higher 
-than 50\%.
+One of the applications of probabilistic forecasts is the estimation
+of the probability of the signal being above a certain threshold. In
+the case of \no forecasting, this is especially useful when normative
+limits are established by authorities.
 
-As noted before, there's usually a high cost on performing preventive
-measures against pollution. This has some consequences while 
-evaluating our models. We must minimize the number of false 
-positives and secondly metrics like the ROC curve are not valid as 
-they are based on a compromise between true positives 
-and false positives,
-but in this case the high cost of a false positive does not allow 
-this compromise to happen. Table \ref{table:classif_hig} shows 
-the true positives and false positives of each model. We see again the 
-superior results of quantile gradient boosted trees against the other 
-models.
+We evaluated the proposed models to check how good are they to detect
+those peaks.  In Madrid, municipal regulations fix a threshold of 180
+$\mu gm^{-3}$ to activate the first level of restrictive measures on
+traffic. Thus, we consider that a \no peak is forecast when the
+probability of reaching above this limit is higher than 50\%.  It is
+important to note that this normative threshold lies around the 99.7
+quantile of the \no distribution, and thus it is safe to consider
+peaks as rare events.
+This fact of course implies that the possibility of using a classifier
+to predict peaks, with classes above or below the threshold, is not
+straightforward. Firstly, we would need a classifier per threshold,
+but more importantly, it would suffer from the fact that the training
+dataset would be highly imbalanced.
+
+As noted before, there is usually a high cost on performing preventive
+measures against pollution. This has some consequences for the
+evaluation of our models. We must minimize the number of false
+positives and false negatives and thus secondary metrics like the ROC
+curve are not directly applicable as in this case, depending on the
+take of the decision makers, the cost of a false positive might be
+much higher than the cost of a false negative. Table
+\ref{table:classif_hig} shows the true positives and false positives
+of each model. We see again the superior results of quantile gradient
+boosted trees against the other models.
 
 \begin{table}[tbp]
   \centering
-  \caption{
-    Detection of \no pollution peaks (above 180 $\mu gm^{-3}$)
-    \label{table:classif_hig}
+  \caption{\label{table:classif_hig}
+    Detection of \no peaks (above 180 $\mu gm^{-3}$) with the proposed
+    models for a selection of horizons. TP and FP stand for true
+    positives and false positives, respectively.
   }
-  \begin{tabular}{lrrrrrrrrr}
+  \begin{tabular}{llcccccccc}
     \toprule 
     \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNNL} & \multicolumn{2}{c}{QRFL}   \\
     h & peaks &  TP &  FP &  TP &  FP &  TP &  FP &  TP &  FP\\
@@ -714,20 +724,19 @@ models.
 
 After extracting and processing the data from one of the pollution
 stations in Madrid, we have compared 4 different models (quantile
-random forests, quantile linear regression, quantile gradient boosted 
-trees and
-$k$-nearest neighbors) to build a probabilistic forecast of the levels
-of \no for up to 60 hours into the future. We have
-evaluated our models through the forecast quantile 50 and the forecast
-distribution.
+random forests, quantile linear regression, quantile gradient boosted
+trees and $k$-nearest neighbors) to build a probabilistic forecast of
+the levels of \no for up to 60 hours into the future. We have
+evaluated our models through the forecast quantile 50 and the full
+forecast distribution.
 
-We have observed a high linear dependence between the target and the
+We have observed a linear dependence between the target and the
 features. For this reason, the linear quantile model has performed
 well compared to random forests and $k$-nearest neighbors. However,
-the multiplicative nature of the levels of \no and the
-nonlinear dependence between target and features have lead to better
-results for the gradient boosted trees which has outperformed all the
-other models in all metrics.
+the multiplicative nature of the levels of \no and the nonlinear
+dependence between target and features have lead to better results for
+the gradient boosted trees which has outperformed all the other models
+in all metrics.
 
 However, we have shown how quantile random forest and quantile
 $k$-nearest neighbors could be used to improve the results of a linear
@@ -738,11 +747,13 @@ gradient boosted trees.
 
 In sum, we have tested six alternative models to produce probabilistic
 forecasts for \no, and we have compared them through different
-metrics.  Also, we see how quantile gradient boosted trees are able to
-detect pollution peaks beforehand with almost no false positive. This
-inspiring work could be enhanced by improving the quality of the
-probabilistic forecast either by using new models (neural networks) or
-extracting better features as input of our models.
+metrics.  Also, we have established how quantile gradient boosted
+trees are able to detect pollution peaks beforehand with almost no
+false positives.
+
+% In the future, our work could be enhanced by improving the quality of
+% the probabilistic forecast either by using new models (neural
+% networks) or extracting better features as input of our models.
 
 %\section{References}
 
