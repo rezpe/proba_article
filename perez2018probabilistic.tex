@@ -87,8 +87,8 @@
   boosted trees is the best performing model as it provides the best
   results for both the expected value and the forecast full
   distribution. Furthermore, we show how this approach can be used to
-  detect pollution peaks with almost no false positives.\\
-  \vspace{1cm} \textbf{[Required 2 line summary]} Six methods for
+  detect pollution peaks with almost no false positives.\\\\
+  \textbf{[Required 2 line summary:]} Six methods for
   predicting the full distribution of future \no concentrations are
   implemented and compared: their utility is proven by forecasting 60
   hour-ahead extreme pollution episodes for the city of Madrid with few
@@ -643,22 +643,19 @@ results.
 
 As an example of the capabilities of the four models, Figure
 \ref{figure:evoday1} and \ref{figure:evoday2} compare their forecasts
-in 2 different days: one day with low \no levels and
-another with levels above the health threshold of 180 $\mu gm^{-3}$.
-As stated earlier, the predictions were done at 10:00 AM and we
-forecast the distribution of the concentration for the next 60 hours.
+in 2 different days: one day with low \no levels and another with
+levels above the health threshold of 180 $\mu gm^{-3}$.  As stated
+earlier, the predictions were done at 10:00 AM and we forecast the
+distribution of the concentration for the next 60 hours.
 
-We see more clearly in those examples how the quantile random forests 
-tend to
-underestimate the target and misses to build a meaningful distribution
-as it is not fitting well the data. On the other hand, 
-quantile $k$-nearest
-neighbors does a better job but the upper percentiles of the
-distribution are too high.  Finally we ca visualize how quantile linear 
-regression and quantile gradient boosted trees fit better the 
-data with quantile gradient boosted trees outperforming
- on high values.
-
+We see more clearly in those examples how the quantile random forests
+model tends to underestimate the target and fails to build a
+meaningful distribution, not fitting well the data. On the other hand,
+quantile $k$-nearest neighbors does a better job but the upper
+percentiles of the distribution are too high.  Finally we can
+visualize how quantile linear regression and quantile gradient boosted
+trees fit better the data with quantile gradient boosted trees
+outperforming on high values.
 
 \subsection{Forecasting \no concentration peaks}
 
