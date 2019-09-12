@@ -78,16 +78,21 @@
   probabilistic version of $k$-nearest neighbors, quantile random
   forests, linear quantile regression and quantile gradient boosted
   trees.  We have used those models to predict \no concentrations in a
-  precise urban location
+  precise urban location,
   % a wide set of forecasting horizons (up
   % to 60 hours)
-  , and we have studied the quality of the forecasts.  We have also
+  and we have studied the quality of the forecasts.  We have also
   improved some of those models by applying a novel nested scheme to
   the output of a linear model. In our experiments, quantile gradient
   boosted trees is the best performing model as it provides the best
   results for both the expected value and the forecast full
   distribution. Furthermore, we show how this approach can be used to
-  detect pollution peaks with almost no false positives.
+  detect pollution peaks with almost no false positives.\\
+  \vspace{1cm} \textbf{[Required 2 line summary]} Six methods for
+  predicting the full distribution of future \no concentrations are
+  implemented and compared: their utility is proven by forecasting 60
+  hour-ahead extreme pollution episodes for the city of Madrid with few
+  false positives.
 \end{abstract}
 
 \begin{keyword}
@@ -283,21 +288,21 @@ every 11-13 hours up to 9 days before.
 
 \subsection{Ozone}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.4\textwidth]{no2vso3}
-  \label{figure:no2vso3}
-  \caption{Dispersion of levels of $O_3$ vs. levels of $NO_2$.}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=0.4\textwidth]{no2vso3}
+%   \label{figure:no2vso3}
+%   \caption{Dispersion of levels of $O_3$ vs. levels of $NO_2$.}
+% \end{figure}
 
 The same station that records Nitrogen dioxide also records the levels
 of ozone (O\textsubscript{3}). It is known that ozone and Nitrogen
 dioxide are related by chemical reactions occurring in the atmosphere
-in the presence of sunlight, especially of the UV spectrum.  As we can
-see in figure \ref{figure:no2vso3}, there seems to be a correlation
-between NO\textsubscript{2} levels and O\textsubscript{3}. Thus, we
-will also add lagged values of O\textsubscript{3} as inputs to our
-models.
+in the presence of sunlight, especially of the UV spectrum.  % As we can
+% see in figure \ref{figure:no2vso3}, there seems to be a correlation
+% between NO\textsubscript{2} levels and O\textsubscript{3}.
+Thus, we will also add lagged values of O\textsubscript{3} as inputs
+to our models.
 
 \subsection{ECMWF numerical pollution prediction}
 \label{sec:ecmwf-numer-poll}
