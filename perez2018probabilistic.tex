@@ -1,4 +1,4 @@
-\documentclass[a4paper,twocolumn,5p]{elsarticle}
+\documentclass[a4paper,3p,sort&compress]{elsarticle}
 
 \usepackage[draft]{hyperref}
 \usepackage{url}
@@ -8,18 +8,18 @@
 \usepackage{booktabs}
 \usepackage[draft,inline,nomargin]{fixme}
 \usepackage{makecell}
-\usepackage[columnwise]{lineno}
+\usepackage{lineno}
 \usepackage{natbib}
 \DeclareRobustCommand{\citeext}[1]{\citeauthor{#1}~\cite{#1}}
 
 \journal{Environmental Pollution}
 
 %% `Elsevier LaTeX' style
-\bibliographystyle{elsarticle-num}
+\bibliographystyle{plain}
 %%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-\pagewiselinenumbers
+\linenumbers
 
 % Macro para escribir NO$_2$
 \newcommand{\no}{NO\textsubscript{2}\xspace}
@@ -239,9 +239,9 @@ function (CDF) and the empirical CDF of the observation.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.5\textwidth]{histo_variance}
+  \includegraphics[width=0.6\textwidth]{histo_variance}
   \caption{\label{figure:histo_variance}Distribution of logarithmic
-    NO\textsubscript{2} and Distribution of NO\textsubscript{2}
+    NO\textsubscript{2} and distribution of NO\textsubscript{2}
     per hour.}
 \end{figure}
 
@@ -331,7 +331,7 @@ before).
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.15\textwidth]{diagrams/flow}
+  \includegraphics[width=0.2\textwidth]{diagrams/flow}
   \caption{\label{figure:dataflow}Data flow of the
     experiments.}
 \end{figure}
@@ -493,7 +493,7 @@ explained in \cite{cross}.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.48\textwidth]{error_graph}
+  \includegraphics[width=0.75\textwidth]{error_graph}
   \caption{\label{figure:errorGraph}
     Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
@@ -502,7 +502,7 @@ explained in \cite{cross}.
 \end{figure}
 
 \begin{table}[tbp]
-  \centering
+  \centering \footnotesize
   \caption{\label{tab:determ}CRPS Error for the proposed models at different
     horizons.}
   \begin{tabular}{lrrrr}
@@ -592,7 +592,7 @@ small compared to the observed one.
 
 \begin{figure}[tbp]
   \centering
-  \includegraphics[width=0.48\textwidth]{errorGraph_rfl_knnl}
+  \includegraphics[width=0.75\textwidth]{errorGraph_rfl_knnl}
   \caption{Continuous ranked probability score, root mean squared
     error and bias of the different models with respect to the
     forecasting horizon and in average.}
@@ -628,7 +628,7 @@ results.
 
 \begin{figure*}
   \centering
-  \includegraphics[width=0.75\textwidth]{evoday1}
+  \includegraphics[width=1\textwidth]{evoday1}
   \caption{Forecasts of the four models on September, 9th
     2017.}
   \label{figure:evoday1} 
@@ -636,7 +636,7 @@ results.
 
 \begin{figure*}
   \centering
-  \includegraphics[width=0.75\textwidth]{evoday2}
+  \includegraphics[width=1\textwidth]{evoday2}
   \caption{Forecasts of the four models on November, 21st 2017.}
   \label{figure:evoday2} 
 \end{figure*}
@@ -690,14 +690,14 @@ of each model. We see again the superior results of quantile gradient
 boosted trees against the other models.
 
 \begin{table}[tbp]
-  \centering
+  \centering \footnotesize
   \caption{\label{table:classif_hig}
     Detection of \no peaks (above 180 $\mu gm^{-3}$) with the proposed
     models for a selection of horizons. TP and FP stand for true
     positives and false positives, respectively.
   }
   \begin{tabular}{llcccccccc}
-    \toprule 
+    \toprule
     \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNNL} & \multicolumn{2}{c}{QRFL}   \\
     h & peaks &  TP &  FP &  TP &  FP &  TP &  FP &  TP &  FP\\
     \midrule
