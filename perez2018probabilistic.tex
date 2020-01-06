@@ -469,7 +469,7 @@ For more information refer to \cite{quantregforests}.
 
 \subsubsection{Quantile Gradient Boosted Trees (QGB)}
 
-Tree boosting \cite{friedman_greedy_2001} is a recent and successful
+Tree boosting \cite{friedman_greedy_2001} is a successful
 machine learning technique that consist on growing trees based on the
 compromise of a cost function and a regularization function. This cost
 function is usually used to forecast the mean of the signal. We will
@@ -482,6 +482,32 @@ We will train 5 gradient boosted trees models to predict 5 percentiles
 of the \no signal and we will solve quantile 
 crossing with the technique
 explained in \cite{cross}.
+
+\subsubsection{Multilayer Perceptron}
+
+We will also test a multilayer perceptron (MLP) 
+\cite{ramchoun_multilayer_2016} with 1 hidden layer. 
+Like for quantile linear regression and quantile gradient boost, 
+we will modify the cost function to predict the quantiles of the target.
+
+We will therefore as well train 5 ANN to predict 5 percentiles of the \no signal
+and the whole distribution of the target.
+
+\subsubsection{Distributional Random Forests}
+
+Based on the idea of GAMLSS, Distributional Forests 
+\cite{schlosser_distributional_2019} extend the power 
+of this semiparametric method by estimating the LSS 
+(location, scale and shape) through the use of random forests, 
+instead of using GAM's. We will use the R implementation of this 
+method from the package disttree.
+
+\subsubsection{NGBoost}
+
+NGBoost of natural gradient \cite{duan_ngboost_2019} uses the natural to 
+build a boosted ensemble 
+learner that predicts the parameters of the distribution of the target variable.
+Natural Gradients offer better stability and robustness than normal gradients.
 
 \section{Results and discussion}
 \label{sec:results}
