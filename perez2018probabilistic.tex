@@ -509,6 +509,20 @@ build a boosted ensemble
 learner that predicts the parameters of the distribution of the target variable.
 Natural Gradients offer better stability and robustness than normal gradients.
 
+
+\subsubsection{Probabilistic forecast of linear regression residuals}
+
+We suspect there are high linear dependencies between the
+input predictors and the target. We will then experiment 
+on combining 3 of the models: quantile random forest, quantile
+$k$-nearest neighbor and quantile gradient boost with a linear regression.
+
+We decided to train a linear regressor which predicts the
+\no values and then use the QRF, QKNN and QGB models 
+to predict the full distribution of the residuals
+of that linear regression. We abbreviate both models respectively with
+QRFL. QKNNL and QGBL.
+
 \section{Results and discussion}
 \label{sec:results}
 
@@ -609,29 +623,6 @@ have a too small standard deviation and are too narrow. Therefore, the
 forecast probability of some levels of \no is too
 small compared to the observed one.
 
-\subsection{Probabilistic forecast of linear regression residuals}
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.75\textwidth]{errorGraph_rfl_knnl}
-  \caption{Continuous ranked probability score, root mean squared
-    error and bias of the different models with respect to the
-    forecasting horizon and in average.}
-  \label{figure:errorGraph_rfl}
-\end{figure}
-
-As stated before, the results show linear dependences between the
-input predictors and the target. This fact explains why we obtained
-poorer results for quantile $k$-nearest neighbors and quantile random
-forests than for the linear quantile model. However, we can improve
-the results by combining both approaches.
-
-We decided to train a linear regressor which predicts the
-\no values and then use the quantile random forest and quantile
-$k$-nearest neighbor to predict the full distribution of the residuals
-of that linear regression. We abbreviate both models respectively with
-QRFL and QKNNL.
-
 We obtained much better results and we brought a real improvement to
 the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
 metrics with the new models, where we can see the comparison with the
@@ -644,6 +635,15 @@ Also, we still see the combined models underperforming against
 quantile gradient boosted trees, which keeps the first position in all
 the error measures. The additive nature of QGB is behind these
 results. 
+
+\begin{figure}[tbp]
+  \centering
+  \includegraphics[width=0.75\textwidth]{errorGraph_rfl_knnl}
+  \caption{Continuous ranked probability score, root mean squared
+    error and bias of the different models with respect to the
+    forecasting horizon and in average.}
+  \label{figure:errorGraph_rfl}
+\end{figure}
 
 \subsection{Comparison of the prediction on selected days}
 
