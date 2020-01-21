@@ -530,9 +530,8 @@ QRFL. QKNNL and QGBL.
   \centering
   \includegraphics[width=0.75\textwidth]{error_graph}
   \caption{\label{figure:errorGraph}
-    Continuous ranked probability score, root mean squared
-    error and bias of the different models with respect to the
-    forecasting horizon and in average.
+    Boxplot of continuous ranked probability score, root mean squared
+    error and bias of the different models for all horizons.
   }
 \end{figure}
 
@@ -540,42 +539,48 @@ QRFL. QKNNL and QGBL.
   \centering \footnotesize
   \caption{\label{tab:determ}CRPS Error for the proposed models at different
     horizons.}
-  \begin{tabular}{lrrrr}
-    \toprule
-    & \multicolumn{4}{c}{Model} \\ \cmidrule{2-5} 
-    h &    QGB &  QKNN &   QLR &   QRF \\
-    \midrule
-    1     &  4.21 &   4.14 &  4.21 &  4.30 \\
-12    & 16.96 &  18.04 & 19.79 & 17.93 \\
-13    & 16.66 &  17.32 & 19.56 & 17.58 \\
-14    & 15.43 &  15.57 & 17.35 & 15.96 \\
-20    &  7.46 &   7.48 &  7.64 &  7.50 \\
-37    & 18.26 &  18.75 & 21.42 & 19.02 \\
-45    &  9.87 &  10.39 & 11.88 & 11.05 \\
-55    &  8.20 &   8.15 &  9.69 &  8.67 \\
+    \begin{tabular}{lrrlllll}
+      \toprule
+        method &  TP &  FP &        CRPS &        RMSE &       BIAS &      duration &          AUC \\
+        \midrule
+        NGB &             4 &               3 &  10.0 \tiny{(3.3)}&  19.4 \tiny{(7.2)}&  4.6 \tiny{(4.3)}&  997.6 \tiny{(83.4)}&  0.28 \tiny{(0.41)}\\
+          QKNNL &            36 &              46 &  10.0 \tiny{(3.4)}&  20.1 \tiny{(9.7)}&  3.9 \tiny{(3.7)}&     8.3 \tiny{(0.6)}&  0.28 \tiny{(0.41)}\\
+             DT &             3 &               0 &  10.3 \tiny{(3.1)}&  20.0 \tiny{(7.3)}&  5.3 \tiny{(5.1)}&  732.9 \tiny{(17.6)}&   0.3 \tiny{(0.43)}\\
+           QRFL &            24 &              55 &  10.4 \tiny{(3.3)}&  20.6 \tiny{(9.5)}&  3.8 \tiny{(3.3)}&    10.5 \tiny{(0.7)}&   0.28 \tiny{(0.4)}\\
+           QKNN &             0 &               0 &  10.7 \tiny{(3.4)}&  20.9 \tiny{(7.8)}&  5.4 \tiny{(5.2)}&     8.2 \tiny{(0.6)}&  0.28 \tiny{(0.41)}\\
+            MLP &           131 &             219 &  10.8 \tiny{(3.3)}&  20.6 \tiny{(6.9)}&  4.5 \tiny{(4.1)}&  232.9 \tiny{(43.3)}&  0.28 \tiny{(0.41)}\\
+            QLR &            18 &              50 &  10.9 \tiny{(3.6)}&  20.7 \tiny{(8.9)}&  4.0 \tiny{(3.4)}&     9.7 \tiny{(0.8)}&  0.23 \tiny{(0.34)}\\
+            QRF &             0 &               0 &  12.2 \tiny{(3.4)}&  22.8 \tiny{(8.6)}&  7.5 \tiny{(6.9)}&    30.8 \tiny{(1.7)}&   0.3 \tiny{(0.43)}\\
+            QGB &            73 &              23 &   9.5 \tiny{(3.1)}&  18.2 \tiny{(6.6)}&  3.3 \tiny{(3.4)}&    37.0 \tiny{(8.5)}&   0.27 \tiny{(0.4)}\\
+           QGBL &            92 &              67 &   9.5 \tiny{(3.2)}&  19.0 \tiny{(9.9)}&  2.9 \tiny{(3.0)}&    36.0 \tiny{(7.4)}&  0.26 \tiny{(0.39)}\\
+       \bottomrule
+      \end{tabular}
 
-    \midrule
-    average & 10.39 &  10.57 & 11.59 & 10.73 \\
-    \bottomrule
-  \end{tabular}
+      
 \end{table}
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.45\textwidth]{reliability_sharpness}
+  \includegraphics[width=0.9\textwidth]{reliability_sharpness}
   \caption{\label{figure:rel_sharp}Average reliability and sharpness
     of the different models across all horizons. The dim blue lines
     correspond to the different horizons. }
 \end{figure}
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.49\textwidth]{average_roc}
+  \caption{\label{figure:average_roc}Average ROC Curve for each 
+  model. }
+\end{figure}
+
 Figure \ref{figure:errorGraph} shows the different metrics for each
 model across all the horizons. First, we clearly see how 
 quantile gradient
-boosted trees outperform the other models and displays better scores
+boosted trees (QGB) outperforms the other models and displays better scores
 for all metrics.
 
-Secondly, we can observe how quantile random forests and 
-quantile $k$-nearest
+Quantile random forests and quantile $k$-nearest
 neighbors underperform compared to the other models, showing a bias
 which is clearly higher compared to the others.  The main reason for
 this is the high linear dependence of the data. This also explains
@@ -624,7 +629,7 @@ forecast probability of some levels of \no is too
 small compared to the observed one.
 
 We obtained much better results and we brought a real improvement to
-the predictions. Figure \ref{figure:errorGraph_rfl} shows the updated
+the predictions. Figure  shows the updated
 metrics with the new models, where we can see the comparison with the
 original gradient boosted tree (QGB) and quantile linear regression
 (QLR) models. Due to the additive nature of the gradient boosted trees
@@ -634,49 +639,7 @@ model.
 Also, we still see the combined models underperforming against
 quantile gradient boosted trees, which keeps the first position in all
 the error measures. The additive nature of QGB is behind these
-results. 
-
-\begin{figure}[tbp]
-  \centering
-  \includegraphics[width=0.75\textwidth]{errorGraph_rfl_knnl}
-  \caption{Continuous ranked probability score, root mean squared
-    error and bias of the different models with respect to the
-    forecasting horizon and in average.}
-  \label{figure:errorGraph_rfl}
-\end{figure}
-
-\subsection{Comparison of the prediction on selected days}
-
-\begin{figure*}
-  \centering
-  \includegraphics[width=1\textwidth]{evoday1}
-  \caption{Forecasts of the four models on September, 9th
-    2017.}
-  \label{figure:evoday1} 
-\end{figure*}
-
-\begin{figure*}
-  \centering
-  \includegraphics[width=1\textwidth]{evoday2}
-  \caption{Forecasts of the four models on November, 21st 2017.}
-  \label{figure:evoday2} 
-\end{figure*}
-
-As an example of the capabilities of the four models, Figure
-\ref{figure:evoday1} and \ref{figure:evoday2} compare their forecasts
-in 2 different days: one day with low \no levels and another with
-levels above the health threshold of 180 $\mu gm^{-3}$.  As stated
-earlier, the predictions were done at 10:00 AM and we forecast the
-distribution of the concentration for the next 60 hours.
-
-We see more clearly in those examples how the quantile random forests
-model tends to underestimate the target and fails to build a
-meaningful distribution, not fitting well the data. On the other hand,
-quantile $k$-nearest neighbors does a better job but the upper
-percentiles of the distribution are too high.  Finally we can
-visualize how quantile linear regression and quantile gradient boosted
-trees fit better the data with quantile gradient boosted trees
-outperforming on high values.
+results.
 
 \subsection{Forecasting \no concentration peaks}
 
@@ -710,40 +673,6 @@ much higher than the cost of a false negative. Table
 of each model. We see again the superior results of quantile gradient
 boosted trees against the other models.
 
-\begin{table}[tbp]
-  \centering \footnotesize
-  \caption{\label{table:classif_hig}
-    Detection of \no peaks (above 180 $\mu gm^{-3}$) with the proposed
-    models for a selection of horizons. TP and FP stand for true
-    positives and false positives, respectively.
-  }
-  \begin{tabular}{llcccccccc}
-    \toprule
-    \multicolumn{2}{c}{} & \multicolumn{2}{c}{QGB} & \multicolumn{2}{c}{QLR} & \multicolumn{2}{c}{QKNNL} & \multicolumn{2}{c}{QRFL}   \\
-    h & peaks &  TP &  FP &  TP &  FP &  TP &  FP &  TP &  FP\\
-    \midrule
-    7  & 2 &- &   - &- &   - &- & - &- &- \\
-    8  & 5 &- &   - &- &   - &- & - &- &- \\
-    9  &11 &3 &   - &1 &   1 &1 & 1 &1 &1 \\
-    10 &19 &3 &   - &2 &   - &3 & - &3 &- \\
-    11 &16 &4 &   - &- &   - &2 & - &1 &- \\
-    12 &10 &1 &   - &- &   - &- & - &- &- \\
-    13 & 4 &- &   1 &- &   - &- & - &- &- \\
-    31 & 2 &- &   - &- &   - &- & - &- &- \\
-    32 & 5 &- &   - &- &   - &- & - &- &- \\
-    33 &11 &3 &   - &- &   1 &- & 1 &- &- \\
-    34 &19 &3 &   - &- &   - &1 & - &- &- \\
-    35 &16 &2 &   - &- &   - &- & - &- &- \\
-    36 &10 &1 &   - &- &   - &- & - &- &- \\
-    37 & 4 &- &   - &- &   - &- & - &- &- \\
-    55 & 2 &- &   - &- &   - &- & - &- &- \\
-    56 & 5 &- &   - &- &   - &- & - &- &- \\
-    57 &11 &1 &   - &- &   - &- & - &- &- \\
-    58 &19 &2 &   - &- &   - &- & - &- &- \\
-%    all&
-    \bottomrule
-    \end{tabular}
-\end{table}
 
 \section{Conclusions}
 \label{sec:concl}
