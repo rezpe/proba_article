@@ -565,7 +565,7 @@ QRFL. QKNNL and QGBL.
   \caption{\label{figure:rel_sharp}Average reliability and sharpness
     of the different models across all horizons. The dim blue lines
     correspond to the different horizons. }
-\end{figure}
+\end{figure}       
 
 \begin{figure}
   \centering
@@ -578,19 +578,33 @@ Figure \ref{figure:errorGraph} shows the different metrics for each
 model across all the horizons. First, we clearly see how 
 quantile gradient
 boosted trees (QGB) outperforms the other models and displays better scores
-for all metrics.
+for all metrics. The additive nature of QGB is behind these
+results.
 
 Quantile random forests and quantile $k$-nearest
 neighbors underperform compared to the other models, showing a bias
 which is clearly higher compared to the others.  The main reason for
 this is the high linear dependence of the data. This also explains
 then the good results of the linear model (QLR).  However, the linear
-model underperforms when compared to gradient boosted trees, as it is
+model underperforms when compared to other models, as it is
 not able to learn the non-linear relationship between the predictors
 and the target.
 
+However, QKNNL and QRFL showcase good performance, 
+which is surprising for KNNL 
+due to the simplicity 
+of this model.
+On the other hand, QGBL application brings no real benefit compared 
+to QGB, as QGB can already integrate the linear component.
+
+Distributional Forests (DT) and Natural gradient boosted trees (NGB) 
+present good results but are still outperformed by QGB. Natural gradients 
+bring no benefit in this case. 
+
+Finally, MLP has good bias results but underperforms against the other methods.
+
 As stated earlier, the \no levels follow a lognormal
-distribution and it seems that it is better modelled with a
+distribution and it seems that it is better modeled with a
 multiplicative model (different causes multiply the level of
 pollution), therefore the logarithm of the \no levels
 are better forecast with an additive model. 
@@ -599,10 +613,13 @@ quantile gradient boosted trees outperform
 the other models: it can naturally
 add the nonlinear effects.
 
-Table \ref{tab:determ} displays the CRPS of the different models at
-some selected prediction horizons. The table shows again the good
+Table \ref{tab:determ} displays the mean and standard deviation of CRPS 
+of the different models. The table shows again the good
 performance of the quantile 
-gradient boosted trees model for CRPS.
+gradient boosted trees model for CRPS. The table also shows the training times 
+of the different models. QGB appears as having a good compromise 
+between low training times and metrics. QKNNL offers good performance with really low 
+training times.
 
 For probabilistic models, CRPS is a good summary of the performance of
 the models. Notwithstanding, the reliability and sharpness graphs are
@@ -610,9 +627,10 @@ known to be useful at estimating how the observed values are
 positioned in the distributions.  Figure \ref{figure:rel_sharp}
 features the reliability and sharpness of the different models.
 
-The sharpness curve shows that quantile random forests 
+The sharpness curve shows that 
+quantile random forests (QRF)
 and quantile $k$-nearest
-neighbors tend to underestimate the levels of
+neighbors (QKNN) tend to underestimate the levels of
 \no. This is clear in the sharpness curve for the
 upper percentiles. The observed values of those percentiles are
 usually noticeably higher than the forecast values. This means that,
@@ -620,26 +638,20 @@ too many times, the observed values are in the upper percentiles of
 the distribution. This is also a consequence of the bias of both
 models.
 
+For QRF and DT, we see few 
+observations on the sides of the predicted distributions. This means 
+the variance of the predicted variance is too high and the predictions 
+have too much uncertainty.
+
 Gradient boosted trees and quantile linear regression forecast
 distributions seem more balanced but display high values at both sides
 of the sharpness curve.  If we consider the distribution to be a
 gaussian distribution, this means the forecast distributions tend to
 have a too small standard deviation and are too narrow. Therefore, the
 forecast probability of some levels of \no is too
-small compared to the observed one.
-
-We obtained much better results and we brought a real improvement to
-the predictions. Figure  shows the updated
-metrics with the new models, where we can see the comparison with the
-original gradient boosted tree (QGB) and quantile linear regression
-(QLR) models. Due to the additive nature of the gradient boosted trees
-method, this technique does not bring improvement to this type of
-model.
-
-Also, we still see the combined models underperforming against
-quantile gradient boosted trees, which keeps the first position in all
-the error measures. The additive nature of QGB is behind these
-results.
+small compared to the observed one. QGB and MLP also display this behaviour.
+As we are interested in predicting peaks of pollution, 
+this is not detrimental.
 
 \subsection{Forecasting \no concentration peaks}
 
@@ -668,10 +680,12 @@ evaluation of our models. We must minimize the number of false
 positives and false negatives and thus secondary metrics like the ROC
 curve are not directly applicable as in this case, depending on the
 take of the decision makers, the cost of a false positive might be
-much higher than the cost of a false negative. Table
-\ref{table:classif_hig} shows the true positives and false positives
+much higher than the cost of a false negative. 
+Table
+\ref{tab:determ} shows the true positives and false positives
 of each model. We see again the superior results of quantile gradient
-boosted trees against the other models.
+boosted trees against the other models. It also shows how the area under curve 
+"AUC" is not a good metric to compare the different models.
 
 
 \section{Conclusions}
