@@ -10,6 +10,7 @@
 \usepackage{makecell}
 \usepackage{lineno}
 \usepackage{natbib}
+\usepackage{amsmath}
 \DeclareRobustCommand{\citeext}[1]{\citeauthor{#1}~\cite{#1}}
 
 \journal{Environmental Modelling \& Software}
@@ -525,26 +526,23 @@ QRFL. QKNNL and QGBL.
 
 \begin{table}[tbp]
   \centering \footnotesize
-  \caption{\label{tab:determ}CRPS Error for the proposed models at different
-    horizons.}
+  \caption{\label{tab:determ}Error measures for the proposed models.}
     \begin{tabular}{lrrlllll}
       \toprule
-        method &  TP &  FP &        CRPS &        RMSE &       BIAS &      duration &          AUC \\
+         method &              CRPS &              RMSE &             bias &                time &  TP &  FP &                AUC \\
         \midrule
-        NGB &             4 &               3 &  10.0 \tiny{(3.3)}&  19.4 \tiny{(7.2)}&  4.6 \tiny{(4.3)}&  997.6 \tiny{(83.4)}&  0.28 \tiny{(0.41)}\\
-          QKNNL &            36 &              46 &  10.0 \tiny{(3.4)}&  20.1 \tiny{(9.7)}&  3.9 \tiny{(3.7)}&     8.3 \tiny{(0.6)}&  0.28 \tiny{(0.41)}\\
-             DT &             3 &               0 &  10.3 \tiny{(3.1)}&  20.0 \tiny{(7.3)}&  5.3 \tiny{(5.1)}&  732.9 \tiny{(17.6)}&   0.3 \tiny{(0.43)}\\
-           QRFL &            24 &              55 &  10.4 \tiny{(3.3)}&  20.6 \tiny{(9.5)}&  3.8 \tiny{(3.3)}&    10.5 \tiny{(0.7)}&   0.28 \tiny{(0.4)}\\
-           QKNN &             0 &               0 &  10.7 \tiny{(3.4)}&  20.9 \tiny{(7.8)}&  5.4 \tiny{(5.2)}&     8.2 \tiny{(0.6)}&  0.28 \tiny{(0.41)}\\
-            MLP &           131 &             219 &  10.8 \tiny{(3.3)}&  20.6 \tiny{(6.9)}&  4.5 \tiny{(4.1)}&  232.9 \tiny{(43.3)}&  0.28 \tiny{(0.41)}\\
-            QLR &            18 &              50 &  10.9 \tiny{(3.6)}&  20.7 \tiny{(8.9)}&  4.0 \tiny{(3.4)}&     9.7 \tiny{(0.8)}&  0.23 \tiny{(0.34)}\\
-            QRF &             0 &               0 &  12.2 \tiny{(3.4)}&  22.8 \tiny{(8.6)}&  7.5 \tiny{(6.9)}&    30.8 \tiny{(1.7)}&   0.3 \tiny{(0.43)}\\
-            QGB &            73 &              23 &   9.5 \tiny{(3.1)}&  18.2 \tiny{(6.6)}&  3.3 \tiny{(3.4)}&    37.0 \tiny{(8.5)}&   0.27 \tiny{(0.4)}\\
-           QGBL &            92 &              67 &   9.5 \tiny{(3.2)}&  19.0 \tiny{(9.9)}&  2.9 \tiny{(3.0)}&    36.0 \tiny{(7.4)}&  0.26 \tiny{(0.39)}\\
+            NGB &  $ \underset{(3.3)}{10.0} $ &  $ \underset{(7.2)}{19.4} $ &  $ \underset{(4.3)} {4.6}$ & $ \underset{(83.4)}  {997.6}$  &   4 &   3 & $ \underset{(0.41)} {0.28}$  \\
+          QKNNL &  $ \underset{(3.4)}{10.0} $ &  $ \underset{(9.7)}{20.1} $ &  $ \underset{(3.7)} {3.9}$ & $ \underset{(0.6)}     {8.3}$  &  36 &  46 & $ \underset{(0.41)} {0.28}$  \\
+             DT &  $ \underset{(3.1)}{10.3} $ &  $ \underset{(7.3)}{20.0} $ &  $ \underset{(5.1)} {5.3}$ & $ \underset{(17.6)}  {732.9}$  &   3 &   0 & $ \underset{(0.43)}  {0.3}$  \\
+           QRFL &  $ \underset{(3.3)}{10.4} $ &  $ \underset{(9.5)}{20.6} $ &  $ \underset{(3.3)} {3.8}$ & $ \underset{(0.7)}    {10.5}$  &  24 &  55 & $ \underset{(0.4)}  {0.28}$  \\
+           QKNN &  $ \underset{(3.4)}{10.7} $ &  $ \underset{(7.8)}{20.9} $ &  $ \underset{(5.2)} {5.4}$ & $ \underset{(0.6)}     {8.2}$  &   0 &   0 & $ \underset{(0.41)} {0.28}$  \\
+            MLP &  $ \underset{(3.3)}{10.8} $ &  $ \underset{(6.9)}{20.6} $ &  $ \underset{(4.1)} {4.5}$ & $ \underset{(43.3)}  {232.9}$  & 131 & 219 & $ \underset{(0.41)} {0.28}$  \\
+            QLR &  $ \underset{(3.6)}{10.9} $ &  $ \underset{(8.9)}{20.7} $ &  $ \underset{(3.4)} {4.0}$ & $ \underset{(0.8)}     {9.7}$  &  18 &  50 & $ \underset{(0.34)} {0.23}$  \\
+            QRF &  $ \underset{(3.4)}{12.2} $ &  $ \underset{(8.6)}{22.8} $ &  $ \underset{(6.9)} {7.5}$ & $ \underset{(1.7)}    {30.8}$  &   0 &   0 & $ \underset{(0.43)}  {0.3}$  \\
+            QGB &  $ \underset{(3.1)}{9.5}  $ &  $ \underset{(6.6)}{18.2} $ &  $ \underset{(3.4)} {3.3}$ & $ \underset{(8.5)}    {37.0}$  &  73 &  23 & $ \underset{(0.4)}  {0.27}$  \\
+           QGBL &  $ \underset{(3.2)}{9.5}  $ &  $ \underset{(9.9)}{19.0} $ &  $ \underset{(3.0)} {2.9}$ & $ \underset{(7.4)}    {36.0}$  &  92 &  67 & $ \underset{(0.39)} {0.26}$  \\
        \bottomrule
       \end{tabular}
-
-      
 \end{table}
 
 \begin{figure}
