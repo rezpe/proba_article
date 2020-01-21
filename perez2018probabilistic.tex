@@ -49,45 +49,33 @@
   % amongst others, which are activated when air quality deteriorates
   % beyond certain thresholds.
 
-  High concentrations of pollutants in the atmosphere, whose direct
-  implication in a variety of serious health affections is widely
-  accepted, represent an alarming issue around the world. In some
-  cities, high concentration episodes for \no are dealt with by
-  authorities through traffic restrictions which are activated when
-  air quality deteriorates beyond certain thresholds. Forecasting
-  pollutant concentrations becomes thus a necessity both for decision
-  makers and the general public.
+  High concentrations of pollutants in the atmosphere, whose direct implication
+  in a variety of serious health affections is widely accepted, represent an
+  alarming issue around the world. In some cities, high concentration episodes
+  for \no are dealt with by authorities through traffic restrictions which are
+  activated when air quality deteriorates beyond certain thresholds. Foreseeing
+  the probability that pollutant concentrations reach those thresholds becomes
+  thus a necessity both for decision makers and the general public.
 
-  Probabilistic forecasting is an approach that % (as opposed to deterministic or point
-  % forecasting, which is designed to predict a single expected value),
-  allows for the prediction of the expected distribution function for
-  any magnitude. In the case of \no, this is a key feature which
-  allows for the calculation of the future probabilities of exceeding
-  the protective thresholds as well as to derive cost-effectiveness
-  analysis or to %. Probabilistic forecasting is also specially useful to
-  detect pollution peaks, which usually are rare events.
+  Probabilistic forecasting is a family of techniques that allow for the
+  prediction of the expected distribution function, as opposed to usual
+  deterministic or point forecasting, which is designed to predict a single
+  expected value. In the case of \no, probabilistic forecasting allows for the
+  calculation of the future chances of exceeding the protective thresholds as
+  well as to derive cost-effectiveness analysis or to detect pollution peaks,
+  which usually are rare events.
 
-  In this study, we have % extended previous research on forecasting
-  % future \no concentrations with the implementation of
-  implemented four different probabilistic predictive models: a
-  probabilistic version of $k$-nearest neighbors, quantile random
-  forests, linear quantile regression and quantile gradient boosted
-  trees.  We have used those models to predict \no concentrations in a
-  precise urban location,
-  % a wide set of forecasting horizons (up
-  % to 60 hours)
-  and we have studied the quality of the forecasts.  We have also
-  improved some of those models by applying a novel nested scheme to
-  the output of a linear model. In our experiments, quantile gradient
-  boosted trees is the best performing model as it provides the best
-  results for both the expected value and the forecast full
-  distribution. Furthermore, we show how this approach can be used to
-  detect pollution peaks with almost no false positives.\\\\
-  \textbf{[Required 2 line summary:]} Six methods for
-  predicting the full distribution of future \no concentrations are
-  implemented and compared: their utility is proven by forecasting 60
-  hour-ahead extreme pollution episodes for the city of Madrid with few
-  false positives.
+  In this study, we thoroughly compared 10 state of the art probabilistic
+  predictive models, using them to predict the distribution of \no
+  concentrations in a precise urban location for a wide set of forecasting
+  horizons (up to 60 hours). In our experiments, quantile gradient boosted trees
+  shows the best performance as it provides the best results for both the
+  expected value and the forecast full distribution. Furthermore, we show how
+  this approach can be used to detect pollution peaks.% \\\\
+  % \textbf{[Required 2 line summary:]} Six methods for predicting the full
+  % distribution of future \no concentrations are implemented and compared: their
+  % utility is proven by forecasting 60 hour-ahead extreme pollution episodes for
+  % the city of Madrid with few false positives.
 \end{abstract}
 
 \begin{keyword}
