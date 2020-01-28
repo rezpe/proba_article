@@ -345,9 +345,11 @@ we provide more information on each of the models.
 
 Concerning cross-validation, there are several accepted methods to
 separate the train and test set which produce correct estimations of
-the error \cite{bergmeir_note_2018}. We use the out-of-sample
-approach: train the models with data prior to 2017 and test our models
-with data from 2017. We will always test with predictions done at
+the error \cite{bergmeir_note_2018}: We can approximate the error of 
+a model through a crossvalidated evaluation as long as
+ we remove for each test set the correlated samples in the training 
+ dataset. We chose a cross validation with 5 splits for time execution 
+ reasons. We will always test with predictions done at
 10:00, as this is the time the forecast is done in the operational
 setting, as the data is first available at that time.
 
@@ -493,10 +495,12 @@ method from the package disttree.
 
 \subsubsection{NGBoost}
 
-NGBoost of natural gradient \cite{duan_ngboost_2019} uses the natural to 
+NGBoost of natural gradient \cite{duan_ngboost_2019} uses the natural gradient 
+instead of the standard gradient to 
 build a boosted ensemble 
 learner that predicts the parameters of the distribution of the target variable.
-Natural Gradients offer better stability and robustness than normal gradients.
+Natural Gradients are presented as offering better stability and robustness 
+than normal gradients.
 
 
 \subsubsection{Probabilistic forecast of linear regression residuals}
@@ -570,17 +574,18 @@ results.
 Quantile random forests and quantile $k$-nearest
 neighbors underperform compared to the other models, showing a bias
 which is clearly higher compared to the others.  The main reason for
-this is the high linear dependence of the data. This also explains
+this is the highly linear dependence of the data. This also explains
 then the good results of the linear model (QLR).  However, the linear
 model underperforms when compared to other models, as it is
-not able to learn the non-linear relationship between the predictors
+not able to learn the non-linear relationships between the predictors
 and the target.
 
-However, QKNNL and QRFL showcase good performance, 
-which is surprising for KNNL 
+Regarding the models predicting the residuals 
+of a linear regression, QKNNL and QRFL showcase good performance, 
+which is surprising for QKNNL 
 due to the simplicity 
 of this model.
-On the other hand, QGBL application brings no real benefit compared 
+On the other hand, QGBL brings no real benefit compared 
 to QGB, as QGB can already integrate the linear component.
 
 Distributional Forests (DT) and Natural gradient boosted trees (NGB) 
@@ -614,9 +619,8 @@ positioned in the distributions.  Figure \ref{figure:rel_sharp}
 features the reliability and sharpness of the different models.
 
 The sharpness curve shows that 
-quantile random forests (QRF)
-and quantile $k$-nearest
-neighbors (QKNN) tend to underestimate the levels of
+QRF
+and QKNN tend to underestimate the levels of
 \no. This is clear in the sharpness curve for the
 upper percentiles. The observed values of those percentiles are
 usually noticeably higher than the forecast values. This means that,
@@ -629,7 +633,7 @@ observations on the sides of the predicted distributions. This means
 the variance of the predicted variance is too high and the predictions 
 have too much uncertainty.
 
-Gradient boosted trees and quantile linear regression forecast
+QGB and QLR forecast
 distributions seem more balanced but display high values at both sides
 of the sharpness curve.  If we consider the distribution to be a
 gaussian distribution, this means the forecast distributions tend to
@@ -658,7 +662,9 @@ This fact of course implies that the possibility of using a classifier
 to predict peaks, with classes above or below the threshold, is not
 straightforward. Firstly, we would need a classifier per threshold,
 but more importantly, it would suffer from the fact that the training
-dataset would be highly imbalanced.
+dataset would be highly imbalanced. A probabilistic model can learn from the
+predicted distribution even if the peak level has not been 
+reached.
 
 As noted before, there is usually a high cost on performing preventive
 measures against pollution. This has some consequences for the
@@ -669,8 +675,8 @@ take of the decision makers, the cost of a false positive might be
 much higher than the cost of a false negative. 
 Table
 \ref{tab:determ} shows the true positives and false positives
-of each model. We see again the superior results of quantile gradient
-boosted trees against the other models. It also shows how the area under curve 
+of each model. We see again the superior results of QGB against the other models.
+It also shows how the area under curve 
 "AUC" is not a good metric to compare the different models.
 
 
