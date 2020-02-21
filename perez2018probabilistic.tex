@@ -643,6 +643,41 @@ small compared to the observed one. QGB and MLP also display this behaviour.
 As we are interested in predicting peaks of pollution, 
 this is not detrimental.
 
+\subsection{Advanced Non Parametric Statistical tests on the results}
+
+In order to compare the result of the 10 methods, we will use advanced 
+non parametric tests as described by Salvador et al. \cite{garcia_advanced_2010} . 
+The Quade test will calculate the rank of all the algorithms and 
+then determine if they are significantly differently from the mean rank. 
+We have 72 different datasets, each one corresponding to a horizon 
+where we have performed 
+a 5-fold crossvalidation and kept the mean of the results.
+The rank is calculated not only based on the results in the different 
+datasets but also on the importance of the dataset 
+(based on the variance of results). 
+The result of the Quade Test rejects the null hypothesis that the methods have 
+similar performance and we can use the ranks to classify the different methods. 
+Table \ref{tab:quade} shows the results of the Quade test.
+
+\begin{table}[tbp]
+  \centering \footnotesize
+  \caption{\label{tab:quade}Average Rankings of the algorithms (Quade)}
+  \begin{tabular}{c|c}
+    Algorithm&Ranking\\
+    \hline
+    DT&4.864155251141552\\
+    MLP&4.289954337899544\\
+    NGB&6.81544901065449\\
+    QGB&9.407153729071533\\
+    QGBL&8.90677321156773\\
+    QKNN&3.10806697108067\\
+    QKNNL&6.51255707762557\\
+    QLR&4.276255707762556\\
+    QRF&1.4448249619482494\\
+    QRFL&5.3748097412480975\\
+    \end{tabular}
+\end{table}
+
 \subsection{Forecasting \no concentration peaks}
 
 One of the applications of probabilistic forecasts is the estimation
