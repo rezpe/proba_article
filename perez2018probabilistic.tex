@@ -27,7 +27,7 @@
 
 \begin{frontmatter}
 
-  \title{Probabilistic forecasting of extreme \no episodes: a comparison}
+  \title{Probabilistic forecasting of extreme \no episodes: a comparison of models}
 
 % \author{} 
 % \address{Artificial Intelligence Department\\Universidad Nacional de
@@ -646,7 +646,7 @@ this is not detrimental.
 \subsection{Advanced Non Parametric Statistical tests on the results}
 
 In order to compare the result of the 10 methods, we will use advanced 
-non parametric tests as described by Salvador et al. \cite{garcia_advanced_2010} . 
+non parametric tests as described by García et al. \cite{garcia_advanced_2010} . 
 The Quade test will calculate the rank of all the algorithms and 
 then determine if they are significantly differently from the mean rank. 
 We have 72 different datasets, each one corresponding to a horizon 
@@ -708,11 +708,12 @@ positives and false negatives and thus secondary metrics like the ROC
 curve are not directly applicable as in this case, depending on the
 take of the decision makers, the cost of a false positive might be
 much higher than the cost of a false negative. 
-Table
-\ref{tab:determ} shows the true positives and false positives
-of each model. We see again the superior results of QGB against the other models.
-It also shows how the area under curve 
-"AUC" is not a good metric to compare the different models.
+Table \ref{tab:determ} shows the true positives and false positives
+of each model. We see again the superior results of QGB against the other models as it 
+has a good ratio of true positives against false positives.
+Finally, Area under curve 
+"AUC" seems to not be a good metric to compare the different models as the differences are 
+not that high.
 
 
 \section{Conclusions}
