@@ -109,7 +109,8 @@ probabilistic forecasting \sep air quality \sep quantile regression
 \section{Introduction }
 \label{sec:intro}
 
-Pollution has become a worrying issue in cities due to its adverse
+As mentioned by Jiang et al. \cite{jiang_spatio-temporal_2018}, 
+pollution has become a worrying issue in cities due to its adverse
 effects on health and the increase in pollutant concentrations, mainly
 due to human activity (traffic, heating systems\ldots). In order to
 take preventive steps to maintain air quality, forecasting the
@@ -486,7 +487,10 @@ the predicted quantiles.
 
 Tree boosting \cite{friedman_greedy_2001} is a successful
 machine learning technique that consist on growing trees based on the
-compromise of a cost function and a regularization function. This cost
+compromise of a cost function and a regularization function. 
+This technique has already been used to predict air pollution,
+as documented by Lee et al. \cite{lee_forecasting_2020}.
+The cost
 function is usually used to forecast the mean of the signal. We will
 modify the cost function (im a similar way as in the quantile linear
 regression) to predict the quantiles of the target. Also, we will use 
